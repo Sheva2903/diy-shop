@@ -59,4 +59,27 @@ public class ProductImage {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    @jakarta.persistence.PrePersist
+    void prePersist() {
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void setPrimaryImage(boolean primaryImage) {
+        this.primaryImage = primaryImage;
+    }
+
+    public void setSortOrder(int sortOrder) {
+        this.sortOrder = sortOrder;
+    }
 }
