@@ -108,4 +108,22 @@ public class Product {
     public Instant getUpdatedAt() {
         return updatedAt;
     }
+
+    public void decreaseInventory(int quantity) {
+        if (quantity > inventoryQuantity) {
+            throw new IllegalArgumentException("Insufficient inventory");
+        }
+
+        inventoryQuantity -= quantity;
+        updatedAt = Instant.now();
+    }
+
+    public void increaseInventory(int quantity) {
+        if (quantity < 1) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+
+        inventoryQuantity += quantity;
+        updatedAt = Instant.now();
+    }
 }

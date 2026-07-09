@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DIY Shop</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">Handmade storefront</p>
+            <h1>DIY Shop</h1>
+        </div>
+        <nav class="tabs" aria-label="Main navigation">
+            <button class="tab active" type="button" data-view="shop">Shop</button>
+            <button class="tab" type="button" data-view="checkout">Checkout <span id="cartCount">0</span></button>
+            <button class="tab" type="button" data-view="track">Track</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="message" class="message hidden" role="status"></section>
+
+        <section id="shopView" class="view active">
+            <div class="toolbar">
+                <label class="search-field">
+                    <span>Search</span>
+                    <input id="searchInput" type="search" placeholder="Painting, keychain, candle">
+                </label>
+                <label class="select-field">
+                    <span>Category</span>
+                    <select id="categorySelect">
+                        <option value="">All categories</option>
+                    </select>
+                </label>
+            </div>
+            <div id="productGrid" class="product-grid"></div>
+        </section>
+
+        <section id="checkoutView" class="view">
+            <div class="checkout-layout">
+                <section class="panel">
+                    <div class="panel-heading">
+                        <h2>Cart</h2>
+                        <button id="clearCartButton" class="ghost-button" type="button">Clear</button>
+                    </div>
+                    <div id="cartItems" class="cart-list"></div>
+                    <dl class="totals">
+                        <div>
+                            <dt>Subtotal</dt>
+                            <dd id="subtotalValue">0 VND</dd>
+                        </div>
+                        <div>
+                            <dt>Shipping</dt>
+                            <dd id="shippingValue">30,000 VND</dd>
+                        </div>
+                        <div class="grand-total">
+                            <dt>Total</dt>
+                            <dd id="totalValue">30,000 VND</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <form id="checkoutForm" class="panel form-panel">
+                    <h2>Checkout</h2>
+                    <div class="field-grid">
+                        <label>
+                            <span>Recipient full name</span>
+                            <input name="recipientFullName" required maxlength="150" autocomplete="name">
+                        </label>
+                        <label>
+                            <span>Phone number</span>
+                            <input name="phoneNumber" required maxlength="30" autocomplete="tel">
+                        </label>
+                        <label>
+                            <span>Email</span>
+                            <input name="email" type="email" required maxlength="254" autocomplete="email">
+                        </label>
+                        <label>
+                            <span>Province / city</span>
+                            <input name="provinceCity" required maxlength="100">
+                        </label>
+                        <label>
+                            <span>District</span>
+                            <input name="district" required maxlength="100">
+                        </label>
+                        <label>
+                            <span>Ward</span>
+                            <input name="ward" required maxlength="100">
+                        </label>
+                    </div>
+                    <label>
+                        <span>Street address</span>
+                        <input name="streetAddress" required maxlength="255" autocomplete="street-address">
+                    </label>
+                    <label>
+                        <span>Note</span>
+                        <textarea name="customerNote" maxlength="2000" rows="3"></textarea>
+                    </label>
+                    <fieldset class="payment-options">
+                        <legend>Payment</legend>
+                        <label>
+                            <input type="radio" name="paymentMethod" value="COD" checked>
+                            <span>Cash on Delivery</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="paymentMethod" value="BANK_TRANSFER">
+                            <span>Bank Transfer</span>
+                        </label>
+                    </fieldset>
+                    <button id="placeOrderButton" class="primary-button" type="submit">Place order</button>
+                </form>
+            </div>
+
+            <section id="orderSuccess" class="success-panel hidden"></section>
+        </section>
+
+        <section id="trackView" class="view">
+            <form id="trackForm" class="panel narrow-panel">
+                <h2>Track order</h2>
+                <label>
+                    <span>Order code</span>
+                    <input name="orderCode" required maxlength="32">
+                </label>
+                <label>
+                    <span>Phone number</span>
+                    <input name="phoneNumber" required maxlength="30">
+                </label>
+                <button class="primary-button" type="submit">Find order</button>
+            </form>
+            <section id="trackingResult" class="panel result-panel hidden"></section>
+        </section>
+    </main>
+
+    <template id="productTemplate">
+        <article class="product-card">
+            <div class="product-media">
+                <img alt="">
+                <div class="image-fallback"></div>
+            </div>
+            <div class="product-body">
+                <p class="category-name"></p>
+                <h2></h2>
+                <p class="product-name-vi"></p>
+                <div class="product-meta">
+                    <strong class="price"></strong>
+                    <span class="stock"></span>
+                </div>
+                <div class="product-actions">
+                    <input type="number" min="1" value="1" aria-label="Quantity">
+                    <button type="button" class="primary-button">Add</button>
+                </div>
+            </div>
+        </article>
+    </template>
+
+    <script src="/app.js"></script>
+</body>
+</html>

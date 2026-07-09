@@ -20,7 +20,7 @@ public class ProductService {
     }
 
     public List<ProductListResponse> getVisibleProducts(Long categoryId, String keyword) {
-        String normalizedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
+        String normalizedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : "";
 
         return productRepository.findVisibleProducts(categoryId, normalizedKeyword).stream()
                 .map(ProductListResponse::from)

@@ -36,6 +36,18 @@ _Avoid_: Payment gateway
 The number of units of a product that are currently available to sell.
 _Avoid_: Availability only, warehouse stock system
 
+**Order Code**:
+A customer-facing unique code used to identify and track an order without a customer account.
+_Avoid_: Database ID, invoice number
+
+**Order Status**:
+The fulfillment progress of an order: `PENDING`, `CONFIRMED`, `SHIPPING`, `DELIVERED`, or `CANCELLED`.
+_Avoid_: Payment state
+
+**Payment Status**:
+The payment progress of an order: `UNPAID`, `PAID`, or `FAILED`.
+_Avoid_: Order fulfillment state
+
 **Bilingual Storefront**:
 A storefront that presents customer-facing content in both Vietnamese and English.
 _Avoid_: Vietnamese-only storefront

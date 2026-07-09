@@ -1,11 +1,31 @@
 # DIY Shop
 
-Spring Boot backend for a DIY & handmade goods storefront.
+Spring Boot application for a DIY & handmade goods storefront.
 
 ## Repository scope
 
-This repository currently contains the backend foundation and local development setup.
+This repository currently contains the Spring Boot backend, local development setup, and a lightweight static customer UI.
 Project scope and MVP requirements are documented in [`docs/project-spec.md`](docs/project-spec.md).
+
+## Current progress
+
+Implemented:
+
+- Customer storefront APIs for categories, products, search, product detail, and product images
+- Guest checkout with direct order creation
+- Order code generation and guest order tracking by order code + phone number
+- Inventory reservation on checkout and inventory restore on seller cancellation
+- Seller order APIs for list, detail, payment confirmation, status updates, and cancellation
+- Lightweight static customer UI served by Spring Boot
+
+Not implemented yet:
+
+- Seller product/category management APIs
+- Seller dashboard UI
+- Authentication for seller endpoints
+- Email notifications
+- VietQR generation
+- AWS deployment configuration
 
 ## Stack
 
@@ -16,6 +36,7 @@ Project scope and MVP requirements are documented in [`docs/project-spec.md`](do
 - Flyway
 - PostgreSQL
 - Docker
+- Static HTML/CSS/JavaScript for the simple customer UI
 
 ## Prerequisites
 
@@ -61,8 +82,34 @@ mvnw.cmd spring-boot:run
 The app runs at:
 
 ```text
-http://localhost:8080
+http://localhost:8081
 ```
+
+The customer UI is served at the root URL.
+
+## API snapshot
+
+Customer-facing endpoints:
+
+```text
+GET  /api/categories
+GET  /api/categories/{id}
+GET  /api/products
+GET  /api/products/{id}
+POST /api/orders
+GET  /api/orders/track?orderCode=...&phoneNumber=...
+```
+
+Seller order endpoints:
+
+```text
+GET   /api/seller/orders
+GET   /api/seller/orders/{orderCode}
+PATCH /api/seller/orders/{orderCode}/payment
+PATCH /api/seller/orders/{orderCode}/status
+```
+
+Seller endpoints are not authenticated yet and are for local development only.
 
 ## Local database
 
@@ -88,10 +135,17 @@ src/main/resources/db/migration
 Current bootstrap migration:
 
 ```text
-V1__init.sql
+V1__create_categories.sql
 ```
 
 Flyway runs automatically during application startup.
+If a local development database reports a Flyway checksum mismatch after migration files change, reset the local Docker volume with `docker compose down -v` and start PostgreSQL again.
+
+Latest migration:
+
+```text
+V5__create_orders.sql
+```
 
 ## Useful commands
 
