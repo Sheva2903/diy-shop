@@ -24,8 +24,14 @@ public class ProductImage {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "image_url", nullable = false, length = 500)
+    @Column(name = "image_url", length = 500)
     private String imageUrl;
+
+    @Column(name = "storage_key", length = 500)
+    private String storageKey;
+
+    @Column(name = "content_type", length = 100)
+    private String contentType;
 
     @Column(name = "primary_image", nullable = false)
     private boolean primaryImage;
@@ -52,6 +58,14 @@ public class ProductImage {
         return primaryImage;
     }
 
+    public String getStorageKey() {
+        return storageKey;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
     public int getSortOrder() {
         return sortOrder;
     }
@@ -73,6 +87,14 @@ public class ProductImage {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void setStorageKey(String storageKey) {
+        this.storageKey = storageKey;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     public void setPrimaryImage(boolean primaryImage) {

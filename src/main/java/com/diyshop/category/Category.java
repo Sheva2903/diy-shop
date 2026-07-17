@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
@@ -54,5 +55,27 @@ public class Category {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setNameVi(String nameVi) {
+        this.nameVi = nameVi;
+        updatedAt = Instant.now();
+    }
+
+    public void setNameEn(String nameEn) {
+        this.nameEn = nameEn;
+        updatedAt = Instant.now();
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+        updatedAt = Instant.now();
+    }
+
+    @PrePersist
+    private void initializeTimestamps() {
+        Instant now = Instant.now();
+        createdAt = now;
+        updatedAt = now;
     }
 }

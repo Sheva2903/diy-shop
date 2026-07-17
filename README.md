@@ -17,12 +17,12 @@ Implemented:
 - Inventory reservation on checkout and inventory restore on seller cancellation
 - Seller order APIs for list, detail, payment confirmation, status updates, and cancellation
 - Lightweight static customer UI served by Spring Boot
+- Seller session authentication and seller-only category/product management APIs
+- Multipart product image upload with local storage and an AWS S3 storage adapter
 
 Not implemented yet:
 
-- Seller product/category management APIs
 - Seller dashboard UI
-- Authentication for seller endpoints
 - Email notifications
 - VietQR generation
 - AWS deployment configuration
@@ -37,6 +37,7 @@ Not implemented yet:
 - PostgreSQL
 - Docker
 - Static HTML/CSS/JavaScript for the simple customer UI
+- AWS SDK for Java 2.x
 
 ## Prerequisites
 
@@ -51,7 +52,16 @@ Not implemented yet:
 docker compose up -d
 ```
 
-### 2. Run tests
+### 2. Configure the seller account
+
+Seller APIs require these environment variables. The password value must be a BCrypt hash, never a plain-text password.
+
+```bash
+export DIY_SHOP_SELLER_USERNAME='seller'
+export DIY_SHOP_SELLER_PASSWORD_HASH='<bcrypt-password-hash>'
+```
+
+### 3. Run tests
 
 macOS / Linux:
 
@@ -65,7 +75,7 @@ Windows:
 mvnw.cmd test
 ```
 
-### 3. Run the application
+### 4. Run the application
 
 macOS / Linux:
 
@@ -109,7 +119,49 @@ PATCH /api/seller/orders/{orderCode}/payment
 PATCH /api/seller/orders/{orderCode}/status
 ```
 
-Seller endpoints are not authenticated yet and are for local development only.
+Seller catalog endpoints:
+
+```text
+GET   /api/seller/categories
+POST  /api/seller/categories
+PUT   /api/seller/categories/{id}
+PATCH /api/seller/categories/{id}/visibility
+
+GET   /api/seller/products
+POST  /api/seller/products
+PUT   /api/seller/products/{id}
+PATCH /api/seller/products/{id}/visibility
+PATCH /api/seller/products/{id}/inventory
+
+GET    /api/seller/products/{id}/images
+POST   /api/seller/products/{id}/images
+PATCH  /api/seller/products/{id}/images/{imageId}/primary
+DELETE /api/seller/products/{id}/images/{imageId}
+```
+
+All `/api/seller/**` endpoints require an authenticated seller session. Obtain a CSRF token from `GET /api/seller/auth/csrf`, submit credentials to `POST /api/seller/auth/login`, and end the session with `POST /api/seller/auth/logout`.
+
+The image upload endpoint consumes `multipart/form-data`. Send the file in an `image` part, with optional `primaryImage` and `sortOrder` fields. JPEG, PNG, and WebP files up to 5 MB are accepted.
+
+## Product image storage
+
+Local development stores uploaded images under `./uploads/product-images` and serves them from `/media/product-images/**`. The directory is ignored by Git.
+
+The default local configuration requires no additional values:
+
+```text
+IMAGE_STORAGE_PROVIDER=local
+```
+
+For AWS S3, configure:
+
+```text
+IMAGE_STORAGE_PROVIDER=s3
+IMAGE_STORAGE_S3_BUCKET=<bucket-name>
+AWS_REGION=ap-southeast-1
+```
+
+The S3 adapter uses the AWS SDK default credential chain. On AWS, give the application an IAM role with access to the bucket instead of storing access keys in this repository. S3 objects remain private; API responses contain temporary presigned display URLs.
 
 ## Local database
 
@@ -144,7 +196,7 @@ If a local development database reports a Flyway checksum mismatch after migrati
 Latest migration:
 
 ```text
-V5__create_orders.sql
+V6__add_product_image_storage.sql
 ```
 
 ## Useful commands

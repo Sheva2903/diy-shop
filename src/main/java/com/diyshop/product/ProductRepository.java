@@ -15,6 +15,24 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             select distinct p
             from Product p
             left join fetch p.images
+            join fetch p.category
+            order by p.createdAt desc
+            """)
+    List<Product> findAllForSeller();
+
+    @Query("""
+            select p
+            from Product p
+            left join fetch p.images
+            join fetch p.category
+            where p.id = :id
+            """)
+    Optional<Product> findByIdForSeller(@Param("id") Long id);
+
+    @Query("""
+            select distinct p
+            from Product p
+            left join fetch p.images
             join fetch p.category c
             where p.visible = true
               and c.visible = true

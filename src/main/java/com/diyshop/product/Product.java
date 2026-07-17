@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
@@ -109,13 +110,57 @@ public class Product {
         return updatedAt;
     }
 
+    public void setNameVi(String nameVi) {
+        this.nameVi = nameVi;
+        touch();
+    }
+
+    public void setNameEn(String nameEn) {
+        this.nameEn = nameEn;
+        touch();
+    }
+
+    public void setDescriptionVi(String descriptionVi) {
+        this.descriptionVi = descriptionVi;
+        touch();
+    }
+
+    public void setDescriptionEn(String descriptionEn) {
+        this.descriptionEn = descriptionEn;
+        touch();
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+        touch();
+    }
+
+    public void setInventoryQuantity(int inventoryQuantity) {
+        if (inventoryQuantity < 0) {
+            throw new IllegalArgumentException("Inventory quantity cannot be negative");
+        }
+
+        this.inventoryQuantity = inventoryQuantity;
+        touch();
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+        touch();
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+        touch();
+    }
+
     public void decreaseInventory(int quantity) {
         if (quantity > inventoryQuantity) {
             throw new IllegalArgumentException("Insufficient inventory");
         }
 
         inventoryQuantity -= quantity;
-        updatedAt = Instant.now();
+        touch();
     }
 
     public void increaseInventory(int quantity) {
@@ -124,6 +169,17 @@ public class Product {
         }
 
         inventoryQuantity += quantity;
+        touch();
+    }
+
+    private void touch() {
         updatedAt = Instant.now();
+    }
+
+    @PrePersist
+    private void initializeTimestamps() {
+        Instant now = Instant.now();
+        createdAt = now;
+        updatedAt = now;
     }
 }

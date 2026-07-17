@@ -8,10 +8,10 @@ public record ProductImageResponse(
         boolean primaryImage,
         int sortOrder
 ) {
-    public static ProductImageResponse from(ProductImage image) {
+    public static ProductImageResponse from(ProductImage image, String imageUrl) {
         return new ProductImageResponse(
                 image.getId(),
-                image.getImageUrl(),
+                imageUrl,
                 image.isPrimaryImage(),
                 image.getSortOrder()
         );

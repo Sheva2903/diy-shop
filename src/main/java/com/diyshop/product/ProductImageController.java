@@ -1,15 +1,18 @@
 package com.diyshop.product;
 
-import com.diyshop.product.dto.AddProductImageRequest;
 import com.diyshop.product.dto.ProductImageResponse;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products/{productId}/images")
+@RequestMapping("/api/seller/products/{productId}/images")
+@Validated
 public class ProductImageController {
     private final ProductImageService productImageService;
 
@@ -22,12 +25,15 @@ public class ProductImageController {
         return productImageService.getImages(productId);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ProductImageResponse addImage(
             @PathVariable Long productId,
-            @Valid @RequestBody AddProductImageRequest request) {
-        return productImageService.addImage(productId, request);
+            @RequestPart("image") MultipartFile image,
+            @RequestParam(required = false) Boolean primaryImage,
+            @RequestParam(required = false) @PositiveOrZero Integer sortOrder
+    ) {
+        return productImageService.addImage(productId, image, primaryImage, sortOrder);
     }
 
     @PatchMapping("/{imageId}/primary")

@@ -14,16 +14,21 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductImageResponseMapper imageResponseMapper;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(
+            ProductRepository productRepository,
+            ProductImageResponseMapper imageResponseMapper
+    ) {
         this.productRepository = productRepository;
+        this.imageResponseMapper = imageResponseMapper;
     }
 
     public List<ProductListResponse> getVisibleProducts(Long categoryId, String keyword) {
         String normalizedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : "";
 
         return productRepository.findVisibleProducts(categoryId, normalizedKeyword).stream()
-                .map(ProductListResponse::from)
+                .map(product -> ProductListResponse.from(product, imageResponseMapper::resolveUrl))
                 .toList();
     }
 
@@ -31,6 +36,6 @@ public class ProductService {
         Product product = productRepository.findVisibleProductById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        return ProductDetailResponse.from(product);
+        return ProductDetailResponse.from(product, imageResponseMapper::toResponse);
     }
 }
