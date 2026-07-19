@@ -1,0 +1,163 @@
+.page {
+  padding: var(--space-4) var(--gutter) var(--space-8);
+}
+
+.backLink {
+  color: var(--color-action);
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 750;
+  margin-bottom: var(--space-4);
+  text-decoration: none;
+}
+
+.layout {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.gallery {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.mainImageFrame {
+  aspect-ratio: 1 / 1;
+  background: var(--color-ceramic);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  position: relative;
+}
+
+.mainImage,
+.imageFallback {
+  height: 100%;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.mainImage {
+  object-fit: cover;
+  z-index: 1;
+}
+
+.imageFallback {
+  align-items: center;
+  color: var(--color-brand);
+  display: flex;
+  font-size: 7rem;
+  font-weight: 800;
+  justify-content: center;
+}
+
+.imageFailed {
+  opacity: 0;
+}
+
+.thumbnailGrid {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+}
+
+.thumbnail {
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+
+.details {
+  align-self: center;
+  max-width: 36rem;
+}
+
+.category {
+  color: var(--color-brand);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.details h1 {
+  color: var(--color-brand);
+  font-size: clamp(2.1rem, 6vw, 4.2rem);
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+  margin: var(--space-2) 0 0;
+}
+
+.price {
+  color: var(--color-action);
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: var(--space-3) 0;
+}
+
+.description {
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.stockAvailable,
+.stockUnavailable {
+  border-radius: var(--radius-card);
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+}
+
+.stockAvailable {
+  background: var(--color-mint);
+  color: var(--color-forest);
+}
+
+.stockUnavailable {
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--surface-elevated));
+  color: var(--color-danger);
+}
+
+.stockAvailable h2,
+.stockUnavailable h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.stockAvailable p,
+.stockUnavailable p {
+  line-height: 1.5;
+  margin: var(--space-1) 0 0;
+}
+
+.notFound {
+  background: var(--surface-elevated);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  max-width: 32rem;
+  padding: var(--space-5);
+}
+
+.notFound h1 {
+  color: var(--color-brand);
+  font-size: 1.7rem;
+  margin: 0;
+}
+
+.notFound p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+@media (min-width: 48rem) {
+  .page {
+    padding-top: var(--space-6);
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.8fr);
+    gap: var(--space-7);
+  }
+}

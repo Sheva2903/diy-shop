@@ -61,6 +61,17 @@ export DIY_SHOP_SELLER_USERNAME='seller'
 export DIY_SHOP_SELLER_PASSWORD_HASH='<bcrypt-password-hash>'
 ```
 
+For the fixed local development seller (`seller` / `seller123`), generate an ignored environment file from the frontend directory:
+
+```bash
+cd frontend
+npm run generate:seller
+cd ..
+source .seller-dev.env
+```
+
+These credentials are only for local development. Do not reuse them in a deployed environment or commit `.seller-dev.env`.
+
 ### 3. Run tests
 
 macOS / Linux:
@@ -96,6 +107,30 @@ http://localhost:8081
 ```
 
 The customer UI is served at the root URL.
+
+## React storefront development
+
+The in-progress React storefront lives in [`frontend`](frontend). It currently includes the customer catalog, category and keyword filters, product details, and Vietnamese/English switching.
+
+Start the Spring Boot API first, then in another terminal run:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend runs at `http://localhost:5173`. Vite proxies `/api/**` and `/media/**` requests to Spring Boot at `http://localhost:8081`, so the frontend uses relative API URLs in development and production.
+
+Useful frontend checks:
+
+```bash
+npm run test
+npm run build
+npm run lint
+```
+
+The existing files under `src/main/resources/static` remain as the legacy customer UI until the React storefront replaces their complete customer flow.
 
 ## API snapshot
 

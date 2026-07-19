@@ -1,0 +1,128 @@
+:root {
+  color-scheme: light;
+  font-family: Manrope, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --color-brand: #006241;
+  --color-action: #00754a;
+  --color-action-hover: #005f3c;
+  --color-forest: #1e3932;
+  --color-mint: #d4e9e2;
+  --color-canvas: #f2f0eb;
+  --color-ceramic: #edebe9;
+  --color-surface: #ffffff;
+  --color-text: rgba(0, 0, 0, 0.87);
+  --color-text-muted: rgba(0, 0, 0, 0.58);
+  --color-danger: #c82014;
+  --text-on-brand: #ffffff;
+  --surface-canvas: var(--color-canvas);
+  --surface-elevated: var(--color-surface);
+  --surface-soft: var(--color-ceramic);
+  --surface-image: #e3ddd2;
+  --surface-navigation: rgba(255, 255, 255, 0.96);
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-text-muted);
+  --text-brand: var(--color-brand);
+  --text-action: var(--color-action);
+  --text-success: #24543f;
+  --text-danger: var(--color-danger);
+  --hero-surface: var(--color-forest);
+  --hero-text: #ffffff;
+  --hero-text-secondary: rgba(255, 255, 255, 0.78);
+  --control-surface: #ffffff;
+  --control-text: rgba(0, 0, 0, 0.87);
+  --control-placeholder: rgba(0, 0, 0, 0.5);
+  --border-subtle: rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 0 0.5px rgba(0, 0, 0, 0.14), 0 1px 1px rgba(0, 0, 0, 0.24);
+  --shadow-navigation: 0 1px 3px rgba(0, 0, 0, 0.1), 0 2px 2px rgba(0, 0, 0, 0.06), 0 0 2px rgba(0, 0, 0, 0.07);
+  --radius-card: 0.75rem;
+  --radius-control: 999px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
+  --space-6: 2.5rem;
+  --space-7: 3rem;
+  --space-8: 3.5rem;
+  --gutter: 1rem;
+  --content-wide: 90rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--surface-canvas);
+}
+
+body {
+  background: var(--surface-canvas);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin: 0;
+  min-width: 20rem;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+a,
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--text-action);
+  outline-offset: 3px;
+}
+
+button,
+a {
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+button:active,
+a:active {
+  transform: scale(0.95);
+}
+
+::selection {
+  background: var(--color-mint);
+  color: var(--color-forest);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --gutter: 1.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --gutter: 2.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
