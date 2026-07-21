@@ -19,12 +19,12 @@ Implemented:
 - Lightweight static customer UI served by Spring Boot
 - Seller session authentication and seller-only category/product management APIs
 - Multipart product image upload with local storage and an AWS S3 storage adapter
+- Bank transfer instructions with VietQR public image URLs for bank-transfer orders
 
 Not implemented yet:
 
 - Seller dashboard UI
 - Email notifications
-- VietQR generation
 - AWS deployment configuration
 
 ## Stack
@@ -72,7 +72,28 @@ source .seller-dev.env
 
 These credentials are only for local development. Do not reuse them in a deployed environment or commit `.seller-dev.env`.
 
-### 3. Run tests
+### 3. Configure bank transfer details
+
+Bank transfer checkout requires these environment variables. The backend fails at startup if they are missing because bank transfer is part of the MVP payment flow.
+
+```bash
+export BANK_TRANSFER_BANK_NAME='Vietcombank'
+export BANK_TRANSFER_BANK_CODE='vietcombank'
+export BANK_TRANSFER_BANK_BIN='970436'
+export BANK_TRANSFER_ACCOUNT_NUMBER='<account-number>'
+export BANK_TRANSFER_ACCOUNT_NAME='<account-name>'
+```
+
+Optional values:
+
+```bash
+export BANK_TRANSFER_TEMPLATE='compact'
+export BANK_TRANSFER_PAYMENT_DUE_HOURS='24'
+```
+
+`BANK_TRANSFER_BANK_CODE` is the bank identifier used in the public VietQR image URL. `BANK_TRANSFER_BANK_BIN` is the six-digit Vietnamese bank BIN shown in API responses.
+
+### 4. Run tests
 
 macOS / Linux:
 
@@ -86,7 +107,7 @@ Windows:
 mvnw.cmd test
 ```
 
-### 4. Run the application
+### 5. Run the application
 
 macOS / Linux:
 
@@ -177,6 +198,8 @@ DELETE /api/seller/products/{id}/images/{imageId}
 All `/api/seller/**` endpoints require an authenticated seller session. Obtain a CSRF token from `GET /api/seller/auth/csrf`, submit credentials to `POST /api/seller/auth/login`, and end the session with `POST /api/seller/auth/logout`.
 
 The image upload endpoint consumes `multipart/form-data`. Send the file in an `image` part, with optional `primaryImage` and `sortOrder` fields. JPEG, PNG, and WebP files up to 5 MB are accepted.
+
+For `BANK_TRANSFER` orders, `OrderResponse` includes a `bankTransfer` object with bank details, transfer content, QR image URL, amount, and payment due time. For `COD` orders, `bankTransfer` is `null`.
 
 ## Product image storage
 

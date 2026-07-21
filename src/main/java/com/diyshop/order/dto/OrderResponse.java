@@ -25,10 +25,14 @@ public record OrderResponse(
         BigDecimal subtotal,
         BigDecimal shippingFee,
         BigDecimal totalAmount,
+        BankTransferInstructionsResponse bankTransfer,
         List<OrderItemResponse> items,
         Instant createdAt
 ) {
-    public static OrderResponse from(CustomerOrder order) {
+    public static OrderResponse from(
+            CustomerOrder order,
+            BankTransferInstructionsResponse bankTransfer
+    ) {
         return new OrderResponse(
                 order.getOrderCode(),
                 order.getRecipientFullName(),
@@ -45,6 +49,7 @@ public record OrderResponse(
                 order.getSubtotal(),
                 order.getShippingFee(),
                 order.getTotalAmount(),
+                bankTransfer,
                 order.getItems().stream()
                         .map(OrderItemResponse::from)
                         .toList(),

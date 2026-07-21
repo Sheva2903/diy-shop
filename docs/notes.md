@@ -122,7 +122,7 @@ COD
 BANK_TRANSFER
 ```
 
-VietQR generation is not implemented yet. For now, `BANK_TRANSFER` is just a payment method value.
+For `BANK_TRANSFER` orders, the backend now returns bank transfer instructions and a VietQR public image URL in the order response. Payment confirmation is still manual: the seller checks the bank transfer outside the app, then marks the payment as paid through the seller order API.
 
 ## CustomerOrder Entity
 
@@ -655,7 +655,6 @@ Still missing:
 - seller UI
 - authentication for seller APIs
 - email notifications
-- bank account/VietQR details
 - AWS deployment setup
 - focused tests for order rules
 

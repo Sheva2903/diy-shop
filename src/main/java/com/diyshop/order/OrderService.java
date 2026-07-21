@@ -1,5 +1,6 @@
 package com.diyshop.order;
 
+import com.diyshop.banktransfer.BankTransferInstructionService;
 import com.diyshop.common.exception.BadRequestException;
 import com.diyshop.common.exception.ResourceNotFoundException;
 import com.diyshop.order.dto.CreateOrderItemRequest;
@@ -33,6 +34,7 @@ public class OrderService {
 
     private final CustomerOrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final BankTransferInstructionService bankTransferInstructionService;
     private final BigDecimal flatShippingFee;
     private final SecureRandom secureRandom = new SecureRandom();
     private final Clock clock;
@@ -41,19 +43,22 @@ public class OrderService {
     public OrderService(
             CustomerOrderRepository orderRepository,
             ProductRepository productRepository,
+            BankTransferInstructionService bankTransferInstructionService,
             @Value("${shop.shipping.flat-fee}") BigDecimal flatShippingFee
     ) {
-        this(orderRepository, productRepository, flatShippingFee, Clock.system(SHOP_ZONE));
+        this(orderRepository, productRepository, bankTransferInstructionService, flatShippingFee, Clock.system(SHOP_ZONE));
     }
 
     OrderService(
             CustomerOrderRepository orderRepository,
             ProductRepository productRepository,
+            BankTransferInstructionService bankTransferInstructionService,
             BigDecimal flatShippingFee,
             Clock clock
     ) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.bankTransferInstructionService = bankTransferInstructionService;
         this.flatShippingFee = flatShippingFee;
         this.clock = clock;
     }
@@ -108,7 +113,7 @@ public class OrderService {
 
         CustomerOrder savedOrder = orderRepository.save(order);
 
-        return OrderResponse.from(savedOrder);
+        return OrderResponse.from(savedOrder, bankTransferInstructionService.createFor(savedOrder));
     }
 
     @Transactional(readOnly = true)
@@ -123,7 +128,7 @@ public class OrderService {
                 )
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
-        return OrderResponse.from(order);
+        return OrderResponse.from(order, bankTransferInstructionService.createFor(order));
     }
 
     private Map<Long, Integer> mergeRequestedItems(List<CreateOrderItemRequest> items) {

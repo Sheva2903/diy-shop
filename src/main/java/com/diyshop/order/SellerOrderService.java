@@ -1,5 +1,6 @@
 package com.diyshop.order;
 
+import com.diyshop.banktransfer.BankTransferInstructionService;
 import com.diyshop.common.exception.BadRequestException;
 import com.diyshop.common.exception.ResourceNotFoundException;
 import com.diyshop.order.dto.OrderResponse;
@@ -16,13 +17,16 @@ public class SellerOrderService {
 
     private final CustomerOrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final BankTransferInstructionService bankTransferInstructionService;
 
     public SellerOrderService(
             CustomerOrderRepository orderRepository,
-            ProductRepository productRepository
+            ProductRepository productRepository,
+            BankTransferInstructionService bankTransferInstructionService
     ) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.bankTransferInstructionService = bankTransferInstructionService;
     }
 
     @Transactional(readOnly = true)
@@ -34,7 +38,8 @@ public class SellerOrderService {
 
     @Transactional(readOnly = true)
     public OrderResponse getOrder(String orderCode) {
-        return OrderResponse.from(getOrderWithItems(orderCode));
+        CustomerOrder order = getOrderWithItems(orderCode);
+        return OrderResponse.from(order, bankTransferInstructionService.createFor(order));
     }
 
     @Transactional
@@ -51,7 +56,7 @@ public class SellerOrderService {
 
         order.markPaid();
 
-        return OrderResponse.from(order);
+        return OrderResponse.from(order, bankTransferInstructionService.createFor(order));
     }
 
     @Transactional
@@ -66,7 +71,7 @@ public class SellerOrderService {
 
         order.changeOrderStatus(nextStatus);
 
-        return OrderResponse.from(order);
+        return OrderResponse.from(order, bankTransferInstructionService.createFor(order));
     }
 
     private CustomerOrder getOrderWithItems(String orderCode) {
