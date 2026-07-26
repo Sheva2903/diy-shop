@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
+import { useCart } from "../../cart/hooks/useCart";
 import { formatVnd } from "../../../shared/format/money";
 import { localizeName } from "../../../shared/i18n/localize";
 import type { ProductSummary } from "../types";
@@ -13,8 +14,21 @@ type ProductCardProps = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { i18n, t } = useTranslation();
+  const { addItem } = useCart();
   const productName = localizeName(product, i18n.resolvedLanguage ?? i18n.language);
   const categoryName = localizeName(product.category, i18n.resolvedLanguage ?? i18n.language);
+
+  function addToCart() {
+    addItem({
+      productId: product.id,
+      nameVi: product.nameVi,
+      nameEn: product.nameEn,
+      price: product.price,
+      primaryImageUrl: product.primaryImageUrl,
+      quantity: 1,
+      inventoryQuantity: product.inventoryQuantity
+    });
+  }
 
   return (
     <article className={styles.card}>
@@ -46,9 +60,19 @@ export function ProductCard({ product }: ProductCardProps) {
               : t("catalog.unavailable")}
           </span>
         </div>
-        <Link className={styles.productLink} to={`/products/${product.id}`}>
-          {t("catalog.viewProduct")}
-        </Link>
+        <div className={styles.actions}>
+          <Link className={styles.productLink} to={`/products/${product.id}`}>
+            {t("catalog.viewProduct")}
+          </Link>
+          <button
+            type="button"
+            className={styles.addButton}
+            disabled={!product.inStock}
+            onClick={addToCart}
+          >
+            {t("cart.add")}
+          </button>
+        </div>
       </div>
     </article>
   );

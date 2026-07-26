@@ -1,0 +1,85 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 16rem;
+  background: #1e3932;
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.branding h1 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: white;
+}
+
+.branding p {
+  font-size: 0.85rem;
+  color: #d4e9e2;
+  margin: 0.5rem 0 0 0;
+}
+
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.nav a {
+  color: #d4e9e2;
+  text-decoration: none;
+  padding: 0.75rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.nav a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav a.active {
+  background: #00754a;
+  color: white;
+}
+
+.userSection {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+}
+
+.username {
+  font-size: 0.9rem;
+  color: #d4e9e2;
+  margin: 0 0 0.75rem 0;
+}
+
+.logoutBtn {
+  width: 100%;
+  padding: 0.6rem;
+  background: #c82014;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.logoutBtn:hover {
+  background: #a01c0f;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}

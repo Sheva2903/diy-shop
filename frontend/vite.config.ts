@@ -5,8 +5,16 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://localhost:8081",
-      "/media": "http://localhost:8081"
+      "/api": {
+        target: "http://localhost:8081",
+        changeOrigin: true,
+        cookieDomainRewrite: { "127.0.0.1": "localhost", "*": "localhost" }
+      },
+      "/media": {
+        target: "http://localhost:8081",
+        changeOrigin: true,
+        cookieDomainRewrite: { "*": "localhost" }
+      }
     }
   },
   test: {

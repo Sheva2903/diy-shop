@@ -108,11 +108,19 @@
   color: var(--text-danger);
 }
 
+.actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+  margin-top: var(--space-2);
+}
+
 .productLink {
   color: var(--text-action);
   font-size: 0.88rem;
   font-weight: 750;
-  margin-top: var(--space-2);
   text-decoration: none;
   width: fit-content;
 }
@@ -120,4 +128,27 @@
 .productLink:hover {
   text-decoration: underline;
   text-underline-offset: 0.2rem;
+}
+
+.addButton {
+  background: var(--color-action);
+  border: 0;
+  border-radius: var(--radius-control);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  min-height: 2.25rem;
+  padding: 0.5rem 1rem;
+}
+
+.addButton:hover:not(:disabled) {
+  background: var(--color-action-hover);
+}
+
+.addButton:disabled {
+  background: var(--color-ceramic);
+  color: var(--text-secondary);
+  cursor: not-allowed;
 }

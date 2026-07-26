@@ -1,0 +1,202 @@
+.page {
+  padding: var(--space-5) var(--gutter) var(--space-7);
+}
+
+.page h1 {
+  font-size: 1.65rem;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-4);
+}
+
+.layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.fieldset {
+  background: var(--surface-elevated);
+  border: 0;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+}
+
+.fieldset legend {
+  font-size: 1.02rem;
+  font-weight: 800;
+  padding: 0 0 var(--space-2);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field span {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.field input,
+.field textarea {
+  background: var(--control-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  font: inherit;
+  min-height: 2.75rem;
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+}
+
+.field textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.fieldError input,
+.fieldError textarea {
+  border-color: var(--color-danger);
+}
+
+.errorText {
+  color: var(--text-danger);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.fieldRow {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.paymentOptions {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.paymentOption {
+  align-items: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  display: flex;
+  font-weight: 700;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.paymentOptionSelected {
+  background: var(--color-mint);
+  border-color: var(--color-brand);
+}
+
+.summary {
+  align-self: start;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.summary h2 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.summaryItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.summaryItem {
+  display: flex;
+  font-size: 0.9rem;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+.summaryItem span:first-child {
+  color: var(--text-secondary);
+}
+
+.summaryRow {
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  font-size: 1.05rem;
+  font-weight: 800;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+}
+
+.summaryNote {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.submitError {
+  background: rgba(200, 32, 20, 0.1);
+  border-radius: 8px;
+  color: var(--text-danger);
+  font-size: 0.88rem;
+  padding: var(--space-3);
+}
+
+.primaryButton {
+  background: var(--color-action);
+  border: 0;
+  border-radius: var(--radius-control);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.5rem;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--color-action-hover);
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondaryLink {
+  color: var(--text-action);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+@media (min-width: 48rem) {
+  .fieldRow {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 60rem) {
+  .layout {
+    align-items: start;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: var(--space-5);
+  }
+}

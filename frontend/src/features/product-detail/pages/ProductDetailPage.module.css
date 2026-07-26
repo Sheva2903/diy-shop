@@ -151,6 +151,47 @@
   line-height: 1.5;
 }
 
+.purchase {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.quantityField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.quantityField input {
+  background: var(--control-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  width: 5.5rem;
+}
+
+.addButton {
+  background: var(--color-action);
+  border: 0;
+  border-radius: var(--radius-control);
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.75rem;
+}
+
+.addButton:hover {
+  background: var(--color-action-hover);
+}
+
 @media (min-width: 48rem) {
   .page {
     padding-top: var(--space-6);

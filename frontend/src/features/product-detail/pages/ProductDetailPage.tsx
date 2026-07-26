@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 
+import { useCart } from "../../cart/hooks/useCart";
 import { ApiError } from "../../../shared/api/client";
 import { ErrorState, LoadingState } from "../../../shared/components/ContentState";
 import { formatVnd } from "../../../shared/format/money";
@@ -45,6 +46,8 @@ export function ProductDetailPage() {
 function ProductDetail({ product }: { product: NonNullable<ReturnType<typeof useProductDetail>["data"]> }) {
   const { i18n, t } = useTranslation();
   const language = i18n.resolvedLanguage ?? i18n.language;
+  const { addItem } = useCart();
+  const [quantity, setQuantity] = useState(1);
   const productName = localizeName(product, language);
   const description = localizeDescription(product, language);
   const categoryName = localizeName(product.category, language);
@@ -53,6 +56,19 @@ function ProductDetail({ product }: { product: NonNullable<ReturnType<typeof use
     [product.images]
   );
   const primaryImage = images[0];
+
+  function addToCart() {
+    addItem({
+      productId: product.id,
+      nameVi: product.nameVi,
+      nameEn: product.nameEn,
+      price: product.price,
+      primaryImageUrl: primaryImage?.imageUrl ?? null,
+      quantity,
+      inventoryQuantity: product.inventoryQuantity
+    });
+    setQuantity(1);
+  }
 
   return (
     <article className={styles.page}>
@@ -101,6 +117,29 @@ function ProductDetail({ product }: { product: NonNullable<ReturnType<typeof use
                 : t("product.outOfStockDescription")}
             </p>
           </section>
+          {product.inStock ? (
+            <div className={styles.purchase}>
+              <label className={styles.quantityField}>
+                <span>{t("cart.quantity")}</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={product.inventoryQuantity}
+                  value={quantity}
+                  onChange={(event) => {
+                    const next = Number(event.target.value);
+                    if (!Number.isFinite(next)) {
+                      return;
+                    }
+                    setQuantity(Math.min(Math.max(Math.trunc(next), 1), product.inventoryQuantity));
+                  }}
+                />
+              </label>
+              <button type="button" className={styles.addButton} onClick={addToCart}>
+                {t("cart.add")}
+              </button>
+            </div>
+          ) : null}
         </section>
       </div>
     </article>

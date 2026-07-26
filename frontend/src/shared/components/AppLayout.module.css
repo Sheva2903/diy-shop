@@ -1,4 +1,6 @@
 .pageShell {
+  display: flex;
+  flex-direction: column;
   min-height: 100dvh;
 }
 
@@ -43,6 +45,7 @@
 
 .navigation nav {
   display: none;
+  gap: var(--space-3);
 }
 
 .navLink {
@@ -55,6 +58,47 @@
 .navLink:hover,
 .navLink:focus-visible {
   color: var(--text-action);
+}
+
+.actions {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.cartLink {
+  align-items: center;
+  border-radius: var(--radius-control);
+  color: var(--text-primary);
+  display: inline-flex;
+  font-size: 1.15rem;
+  justify-content: center;
+  min-height: 2.5rem;
+  min-width: 2.5rem;
+  position: relative;
+  text-decoration: none;
+}
+
+.cartLink:hover,
+.cartLink:focus-visible {
+  background: var(--color-canvas);
+}
+
+.cartBadge {
+  align-items: center;
+  background: var(--color-danger);
+  border-radius: 999px;
+  color: #ffffff;
+  display: flex;
+  font-size: 0.68rem;
+  font-weight: 700;
+  height: 1.15rem;
+  justify-content: center;
+  min-width: 1.15rem;
+  padding: 0 0.25rem;
+  position: absolute;
+  right: 0.1rem;
+  top: 0.15rem;
 }
 
 .languageSwitch {
@@ -87,8 +131,55 @@
 }
 
 .content {
+  flex: 1;
   margin: 0 auto;
   max-width: 80rem;
+  width: 100%;
+}
+
+.footer {
+  background: var(--color-forest);
+  color: var(--hero-text);
+  margin-top: var(--space-7);
+}
+
+.footerInner {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0 auto;
+  max-width: 80rem;
+  padding: var(--space-5) var(--gutter);
+}
+
+.footerSection h2 {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.6rem;
+  text-transform: uppercase;
+}
+
+.footerSection a {
+  color: var(--hero-text);
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.footerSection a:hover,
+.footerSection a:focus-visible {
+  text-decoration: underline;
+}
+
+.socialLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.copyright {
+  color: var(--hero-text-secondary);
+  font-size: 0.82rem;
+  margin: 0;
 }
 
 @media (min-width: 48rem) {
@@ -99,6 +190,10 @@
   }
 
   .navigation nav {
-    display: block;
+    display: flex;
+  }
+
+  .footerInner {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

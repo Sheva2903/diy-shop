@@ -1,0 +1,98 @@
+.card {
+  background: var(--surface-elevated);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
+}
+
+.card h2 {
+  font-size: 1.02rem;
+  margin: 0 0 var(--space-3);
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+.item span:first-child {
+  color: var(--text-secondary);
+}
+
+.totals {
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.grandTotal {
+  font-size: 1.08rem;
+  font-weight: 800;
+}
+
+.definitionList {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.definitionRow {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.definitionRow dt {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.definitionRow dd {
+  font-weight: 700;
+  margin: 0;
+  text-align: right;
+  word-break: break-word;
+}
+
+.qrFrame {
+  background: var(--color-canvas);
+  border-radius: var(--radius-card);
+  display: grid;
+  justify-items: center;
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+}
+
+.qrFrame img {
+  max-width: 15rem;
+  width: 100%;
+}
+
+.address {
+  font-style: normal;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.muted {
+  color: var(--text-secondary);
+  margin: 0;
+}
