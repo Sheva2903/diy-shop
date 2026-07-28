@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/* Design foundation — plan.md §0. Token names match the plan exactly so the
+   stylesheet stays traceable to the design doc. */
+@theme {
+  --color-brand: #006241;
+  --color-action: #00754a;
+  --color-action-strong: #005c3a;
+  --color-forest: #1e3932;
+  --color-forest-soft: #2b5148;
+  --color-mint: #d4e9e2;
+  --color-canvas: #f2f0eb;
+  --color-ceramic: #edebe9;
+  --color-surface: #ffffff;
+  --color-text: rgba(0, 0, 0, 0.87);
+  --color-text-muted: rgba(0, 0, 0, 0.58);
+  --color-text-faint: rgba(0, 0, 0, 0.38);
+  --color-hairline: rgba(0, 0, 0, 0.1);
+  --color-danger: #c82014;
+  --color-danger-soft: #fdecea;
+  --color-gold: #cba258;
+
+  /* Status pills — plan §1.7 */
+  --color-status-pending: #fff4d6;
+  --color-status-pending-ink: #7a5800;
+  --color-status-shipping: #dce9f7;
+  --color-status-shipping-ink: #1b4a7a;
+  --color-status-unpaid: #ffe8d4;
+  --color-status-unpaid-ink: #8a4a10;
+
+  /* shadcn/ui semantic tokens, mapped onto the DIY Shop palette above.
+     `shadcn add` was run without letting it write its own neutral base colours,
+     so its components inherit the brand instead of a second, competing theme. */
+  --color-background: #f2f0eb;
+  --color-foreground: rgba(0, 0, 0, 0.87);
+  --color-card: #ffffff;
+  --color-card-foreground: rgba(0, 0, 0, 0.87);
+  --color-popover: #ffffff;
+  --color-popover-foreground: rgba(0, 0, 0, 0.87);
+  --color-primary: #00754a;
+  --color-primary-foreground: #ffffff;
+  --color-muted: #edebe9;
+  --color-muted-foreground: rgba(0, 0, 0, 0.58);
+  --color-accent: #d4e9e2;
+  --color-accent-foreground: #1e3932;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-input: rgba(0, 0, 0, 0.1);
+  --color-ring: #00754a;
+
+  --font-sans: "Manrope", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --radius-card: 12px;
+  --radius-pill: 50px;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.08), 0 10px 24px rgba(0, 0, 0, 0.1);
+  --shadow-navigation: 0 1px 0 rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-modal: 0 12px 48px rgba(0, 0, 0, 0.24);
+}
+
+/* Categorical series colours for shadcn/ui charts. Kept inside the craft
+   palette — greens first, then gold / teal / terracotta so adjacent categories
+   stay distinguishable without leaving the brand.
+
+   Declared here rather than in @theme: these are only ever read as
+   var(--chart-N) from chart code, so Tailwind would tree-shake them away as
+   unused theme variables. */
+:root {
+  --chart-1: #00754a;
+  --chart-2: #4c9f70;
+  --chart-3: #cba258;
+  --chart-4: #2b6f8f;
+  --chart-5: #a4553f;
+}
+
+@layer base {
+  html {
+    /* Storefront is light-only for the first release — plan §3.6 */
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  /* plan §3.6 — every interactive element keeps a visible focus ring */
+  :focus-visible {
+    outline: 2px solid var(--color-action);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background-color: var(--color-mint);
+    color: var(--color-forest);
+  }
+}
+
+@layer utilities {
+  /* Outer gutter: 16px mobile, 24–32px desktop — plan §0.4 */
+  .shell {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .shell {
+      padding-inline: 24px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .shell {
+      padding-inline: 32px;
+    }
+  }
+
+  /* Section rhythm: 40px mobile, 64–80px desktop — plan §0.4 */
+  .section {
+    padding-block: 40px;
+  }
+
+  @media (min-width: 1024px) {
+    .section {
+      padding-block: 72px;
+    }
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+/* plan §3.6 — respect reduced motion by collapsing transitions */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

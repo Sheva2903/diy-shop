@@ -1,7 +1,7 @@
-import type { OrderStatus, PaymentStatus } from "./types";
+import type { OrderStatus, PaymentStatus } from "../../types/database";
 
 /**
- * Mirrors SellerOrderService.validateTransition on the backend.
+ * Mirrors the enforce_order_transition trigger in the database.
  */
 export const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
   PENDING: ["CONFIRMED", "CANCELLED"],

@@ -1,20 +1,14 @@
+import { fileURLToPath, URL } from "node:url";
+
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [react()],
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://localhost:8081",
-        changeOrigin: true,
-        cookieDomainRewrite: { "127.0.0.1": "localhost", "*": "localhost" }
-      },
-      "/media": {
-        target: "http://localhost:8081",
-        changeOrigin: true,
-        cookieDomainRewrite: { "*": "localhost" }
-      }
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url))
     }
   },
   test: {
