@@ -1,28 +1,28 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { I18nextProvider } from "react-i18next";
-import { RouterProvider, type RouterProviderProps } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 
-import i18n from "../shared/i18n/i18n";
+import { ToastProvider } from "../components/ui/toast";
+import { CartProvider } from "../features/cart/CartProvider";
+import { router } from "./router";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
+      staleTime: 30_000
     }
   }
 });
 
-type AppProvidersProps = {
-  router: RouterProviderProps["router"];
-};
-
-export function AppProviders({ router }: AppProvidersProps) {
+export function AppProviders() {
   return (
-    <I18nextProvider i18n={i18n}>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </I18nextProvider>
+    <QueryClientProvider client={queryClient}>
+      <ToastProvider>
+        <CartProvider>
+          <RouterProvider router={router} />
+        </CartProvider>
+      </ToastProvider>
+    </QueryClientProvider>
   );
 }

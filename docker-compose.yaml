@@ -6,10 +6,45 @@ services:
       POSTGRES_DB: diyshop
       POSTGRES_USER: diyshop
       POSTGRES_PASSWORD: diyshop123
+      POSTGRES_INITDB_ARGS: "-c password_encryption=scram-sha-256"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U diyshop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - diy-shop-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: diy-shop-backend
+    ports:
+      - "8081:8081"
+    env_file: .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/diyshop
+      SPRING_DATASOURCE_USERNAME: diyshop
+      SPRING_DATASOURCE_PASSWORD: diyshop123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      BANK_TRANSFER_BANK_NAME: Vietcombank
+      BANK_TRANSFER_BANK_CODE: vietcombank
+      BANK_TRANSFER_BANK_BIN: "970436"
+      BANK_TRANSFER_ACCOUNT_NUMBER: "0123456789"
+      BANK_TRANSFER_ACCOUNT_NAME: "DIY SHOP"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - diy-shop-network
 
 volumes:
   postgres_data:
+
+networks:
+  diy-shop-network:
