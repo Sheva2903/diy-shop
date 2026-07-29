@@ -33,7 +33,7 @@ public record SellerProductResponse(
                 product.getPrice(),
                 product.getInventoryQuantity(),
                 product.isVisible(),
-                SellerCategoryResponse.from(product.getCategory()),
+                SellerCategoryResponse.from(product.getCategory(), 0L),
                 product.getImages().stream().map(imageResponseMapper).toList()
         );
     }

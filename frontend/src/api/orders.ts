@@ -1,24 +1,20 @@
-import { supabase } from "../lib/supabase";
+import { apiFetch } from "../lib/api";
 import type { CreateOrderPayload, OrderView } from "../types/database";
 
 /**
- * Placing an order goes through the create_order RPC, never a direct insert:
- * prices, shipping fee, inventory and the order code are all decided in the
- * database so a tampered client payload cannot change what is charged.
+ * Placing an order goes through POST /api/orders, never a direct table write:
+ * prices, shipping fee, inventory and the order code are all decided on the
+ * server so a tampered client payload cannot change what is charged.
  */
 export async function createOrder(payload: CreateOrderPayload): Promise<OrderView> {
-  const { data, error } = await supabase.rpc("create_order", { payload });
-
-  if (error) throw error;
-  return data as OrderView;
+  return apiFetch<OrderView>("/api/orders", { method: "POST", json: payload });
 }
 
 export async function trackOrder(orderCode: string, phoneNumber: string): Promise<OrderView> {
-  const { data, error } = await supabase.rpc("track_order", {
-    p_order_code: orderCode.trim(),
-    p_phone_number: phoneNumber.trim()
+  const query = new URLSearchParams({
+    orderCode: orderCode.trim(),
+    phoneNumber: phoneNumber.trim()
   });
 
-  if (error) throw error;
-  return data as OrderView;
+  return apiFetch<OrderView>(`/api/orders/track?${query.toString()}`);
 }

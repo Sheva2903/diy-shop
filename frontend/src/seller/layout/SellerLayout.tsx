@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
+import { sellerLogout } from "../../api/auth";
 import { cn } from "../../lib/cn";
-import { supabase } from "../../lib/supabase";
 import { useSellerSession } from "../auth/useSellerSession";
 
 type NavItem = { to: string; label: string; icon: React.ReactNode; end?: boolean };
@@ -38,9 +38,16 @@ function currentTitle(pathname: string): string {
 }
 
 export function SellerLayout() {
-  const { email } = useSellerSession();
+  const { username, refresh } = useSellerSession();
   const location = useLocation();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const signOut = async () => {
+    await sellerLogout();
+    await refresh();
+    navigate("/seller/login", { replace: true });
+  };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
@@ -68,7 +75,7 @@ export function SellerLayout() {
 
       <button
         type="button"
-        onClick={() => void supabase.auth.signOut()}
+        onClick={() => void signOut()}
         className="mx-3 mb-4 flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[15px] font-medium text-white/75 transition-colors hover:bg-forest-soft hover:text-white"
       >
         {icon(<><path d="M15 17v1.5A1.5 1.5 0 0 1 13.5 20h-7A1.5 1.5 0 0 1 5 18.5v-13A1.5 1.5 0 0 1 6.5 4h7A1.5 1.5 0 0 1 15 5.5V7" /><path d="M18.5 12H10m8.5 0-2.5-2.5M18.5 12 16 14.5" /></>)}
@@ -107,9 +114,9 @@ export function SellerLayout() {
           </h1>
 
           <div className="ml-auto flex items-center gap-2.5">
-            <span className="hidden text-[14px] text-text-muted sm:block">{email}</span>
+            <span className="hidden text-[14px] text-text-muted sm:block">{username}</span>
             <span className="flex size-9 items-center justify-center rounded-full bg-mint text-[14px] font-bold text-forest">
-              {email?.[0]?.toUpperCase() ?? "S"}
+              {username?.[0]?.toUpperCase() ?? "S"}
             </span>
           </div>
         </header>

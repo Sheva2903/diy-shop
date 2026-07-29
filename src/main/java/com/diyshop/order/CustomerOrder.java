@@ -54,6 +54,9 @@ public class CustomerOrder {
     @Column(name = "customer_note", columnDefinition = "text")
     private String customerNote;
 
+    @Column(name = "cancellation_reason", columnDefinition = "text")
+    private String cancellationReason;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false, length = 30)
     private PaymentMethod paymentMethod;
@@ -123,6 +126,10 @@ public class CustomerOrder {
 
     public String getCustomerNote() {
         return customerNote;
+    }
+
+    public String getCancellationReason() {
+        return cancellationReason;
     }
 
     public PaymentMethod getPaymentMethod() {
@@ -197,6 +204,10 @@ public class CustomerOrder {
         this.customerNote = customerNote;
     }
 
+    public void setCancellationReason(String cancellationReason) {
+        this.cancellationReason = cancellationReason;
+    }
+
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
@@ -207,10 +218,6 @@ public class CustomerOrder {
 
     public void setPaymentStatus(PaymentStatus paymentStatus) {
         this.paymentStatus = paymentStatus;
-    }
-
-    public void markPaid() {
-        paymentStatus = PaymentStatus.PAID;
     }
 
     public void changeOrderStatus(OrderStatus orderStatus) {

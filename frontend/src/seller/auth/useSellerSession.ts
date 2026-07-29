@@ -1,54 +1,32 @@
-import type { Session } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { supabase } from "../../lib/supabase";
+import { getSellerSession } from "../../api/auth";
 
-export type SellerSession = {
-  session: Session | null;
+export type SellerSessionState = {
   isSeller: boolean;
-  email: string | null;
+  username: string | null;
   loading: boolean;
+  refresh: () => Promise<void>;
 };
 
 /**
- * The seller role lives in app_metadata, which only the service key can write,
- * so a signed-in customer cannot promote themselves. The database enforces the
- * same check in is_seller() — this hook only decides what UI to render.
+ * There is a single static seller account (SellerProperties), no role tiers,
+ * so "authenticated" and "is a seller" are the same thing here. Spring
+ * Security has no push-based auth-state event, so callers must invoke
+ * refresh() after login/logout to pick up the new state.
  */
-function readIsSeller(session: Session | null): boolean {
-  return session?.user.app_metadata?.role === "seller";
-}
+export function useSellerSession(): SellerSessionState {
+  const queryClient = useQueryClient();
+  const sessionQuery = useQuery({ queryKey: ["seller", "session"], queryFn: getSellerSession });
 
-export function useSellerSession(): SellerSession {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!active) return;
-      setSession(data.session);
-      setLoading(false);
-    });
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setLoading(false);
-    });
-
-    return () => {
-      active = false;
-      subscription.unsubscribe();
-    };
-  }, []);
+  const refresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["seller", "session"] });
+  };
 
   return {
-    session,
-    isSeller: readIsSeller(session),
-    email: session?.user.email ?? null,
-    loading
+    isSeller: !!sessionQuery.data,
+    username: sessionQuery.data?.username ?? null,
+    loading: sessionQuery.isPending,
+    refresh
   };
 }

@@ -95,7 +95,7 @@ export function ProductImagesPanel({
     setDraggingId(null);
     setBusy(true);
     try {
-      await reorderProductImages(ids);
+      await reorderProductImages(productId, ids);
       await refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not reorder images");

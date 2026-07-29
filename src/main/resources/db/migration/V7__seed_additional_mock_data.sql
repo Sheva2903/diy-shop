@@ -18,12 +18,12 @@ values
 
 insert into product_images (product_id, image_url, primary_image, sort_order)
 values
-    (5, 'https://example.com/images/landscape-painting.jpg', true, 1),
-    (6, 'https://example.com/images/crochet-bracelet.jpg', true, 1),
-    (7, 'https://example.com/images/wooden-photo-frame.jpg', true, 1),
-    (8, 'https://example.com/images/mini-portrait-painting.jpg', true, 1),
-    (9, 'https://example.com/images/handmade-hairband.jpg', true, 1),
-    (10, 'https://example.com/images/decorative-night-light.jpg', true, 1);
+    (5, 'https://i.pinimg.com/1200x/e5/80/c4/e580c4d99f59f593fa5741ddabd6068d.jpg', true, 1),
+    (6, 'https://i.pinimg.com/736x/91/39/68/913968fdf70602b3f6acd261b6753049.jpg', true, 1),
+    (7, 'https://i.pinimg.com/1200x/1b/36/fa/1b36facb969c3037eee68953a3d926c3.jpg', true, 1),
+    (8, 'https://i.pinimg.com/1200x/8d/f7/02/8df70263c9dd2f7fd972bcceb8123617.jpg', true, 1),   
+    (9, 'https://i.pinimg.com/1200x/8f/75/b9/8f75b90f1ab0e595d8946490ad14ad03.jpg', true, 1),
+    (10, 'https://i.pinimg.com/1200x/f4/56/77/f45677138f0fe9cd719b481d168cfba6.jpg', true, 1);
 
 insert into orders (
     order_code, recipient_full_name, phone_number, email,

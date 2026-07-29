@@ -45,7 +45,7 @@ export function SellerSettingsPage() {
 function SettingsForm({ settings }: { settings: ShopSettings }) {
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { email } = useSellerSession();
+  const { username } = useSellerSession();
 
   const [tab, setTab] = useState<TabId>("shop");
   const [draft, setDraft] = useState<Draft>(() => toDraft(settings));
@@ -273,7 +273,7 @@ function SettingsForm({ settings }: { settings: ShopSettings }) {
             <h2 className="text-[16px] font-semibold text-text">Seller account</h2>
 
             <div className="mt-5 max-w-sm space-y-4">
-              <TextField label="Sign-in email" value={email ?? ""} disabled />
+              <TextField label="Username" value={username ?? ""} disabled />
               <TextField
                 label="New password"
                 type="password"

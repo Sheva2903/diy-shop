@@ -3,6 +3,7 @@ package com.diyshop.order;
 import com.diyshop.order.dto.OrderResponse;
 import com.diyshop.order.dto.SellerOrderListResponse;
 import com.diyshop.order.dto.UpdateOrderStatusRequest;
+import com.diyshop.order.dto.UpdatePaymentStatusRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -34,8 +35,11 @@ public class SellerOrderController {
     }
 
     @PatchMapping("/{orderCode}/payment")
-    public OrderResponse markPaymentPaid(@PathVariable String orderCode) {
-        return sellerOrderService.markPaymentPaid(orderCode);
+    public OrderResponse updatePaymentStatus(
+            @PathVariable String orderCode,
+            @Valid @RequestBody UpdatePaymentStatusRequest request
+    ) {
+        return sellerOrderService.updatePaymentStatus(orderCode, request.paymentStatus());
     }
 
     @PatchMapping("/{orderCode}/status")
@@ -43,6 +47,6 @@ public class SellerOrderController {
             @PathVariable String orderCode,
             @Valid @RequestBody UpdateOrderStatusRequest request
     ) {
-        return sellerOrderService.updateOrderStatus(orderCode, request.orderStatus());
+        return sellerOrderService.updateOrderStatus(orderCode, request.orderStatus(), request.cancellationReason());
     }
 }

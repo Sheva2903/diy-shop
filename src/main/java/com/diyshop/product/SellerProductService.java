@@ -4,6 +4,7 @@ import com.diyshop.category.Category;
 import com.diyshop.category.CategoryRepository;
 import com.diyshop.common.exception.BadRequestException;
 import com.diyshop.common.exception.ResourceNotFoundException;
+import com.diyshop.order.OrderItemRepository;
 import com.diyshop.product.dto.SellerProductResponse;
 import com.diyshop.product.dto.UpdateInventoryRequest;
 import com.diyshop.product.dto.UpdateProductVisibilityRequest;
@@ -20,17 +21,20 @@ public class SellerProductService {
     private final CategoryRepository categoryRepository;
     private final ProductImageService productImageService;
     private final ProductImageResponseMapper imageResponseMapper;
+    private final OrderItemRepository orderItemRepository;
 
     public SellerProductService(
             ProductRepository productRepository,
             CategoryRepository categoryRepository,
             ProductImageService productImageService,
-            ProductImageResponseMapper imageResponseMapper
+            ProductImageResponseMapper imageResponseMapper,
+            OrderItemRepository orderItemRepository
     ) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.productImageService = productImageService;
         this.imageResponseMapper = imageResponseMapper;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @Transactional(readOnly = true)
@@ -80,6 +84,17 @@ public class SellerProductService {
         product.setInventoryQuantity(request.inventoryQuantity());
 
         return toResponse(product);
+    }
+
+    @Transactional
+    public void deleteProduct(Long id) {
+        Product product = findProduct(id);
+
+        if (orderItemRepository.existsByProduct_Id(id)) {
+            throw new BadRequestException("Product is referenced by an existing order and cannot be deleted");
+        }
+
+        productRepository.delete(product);
     }
 
     private Product findProduct(Long id) {

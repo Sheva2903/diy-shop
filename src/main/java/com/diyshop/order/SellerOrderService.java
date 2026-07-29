@@ -43,30 +43,31 @@ public class SellerOrderService {
     }
 
     @Transactional
-    public OrderResponse markPaymentPaid(String orderCode) {
+    public OrderResponse updatePaymentStatus(String orderCode, PaymentStatus nextStatus) {
         CustomerOrder order = getOrderWithItems(orderCode);
 
         if (order.getOrderStatus() == OrderStatus.CANCELLED) {
-            throw new BadRequestException("Cancelled orders cannot be marked paid");
+            throw new BadRequestException("Cancelled orders cannot have their payment status changed");
         }
 
-        if (order.getPaymentStatus() == PaymentStatus.FAILED) {
+        if (nextStatus == PaymentStatus.PAID && order.getPaymentStatus() == PaymentStatus.FAILED) {
             throw new BadRequestException("Failed payments cannot be marked paid");
         }
 
-        order.markPaid();
+        order.setPaymentStatus(nextStatus);
 
         return OrderResponse.from(order, bankTransferInstructionService.createFor(order));
     }
 
     @Transactional
-    public OrderResponse updateOrderStatus(String orderCode, OrderStatus nextStatus) {
+    public OrderResponse updateOrderStatus(String orderCode, OrderStatus nextStatus, String cancellationReason) {
         CustomerOrder order = getOrderWithItems(orderCode);
 
         validateTransition(order.getOrderStatus(), nextStatus);
 
         if (nextStatus == OrderStatus.CANCELLED) {
             restoreInventory(order);
+            order.setCancellationReason(cancellationReason);
         }
 
         order.changeOrderStatus(nextStatus);
