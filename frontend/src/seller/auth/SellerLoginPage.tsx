@@ -1,24 +1,24 @@
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
+import { sellerLogin } from "../../api/auth";
 import { Button } from "../../components/ui/Button";
 import { TextField } from "../../components/ui/Field";
-import { supabase } from "../../lib/supabase";
 import { useSellerSession } from "./useSellerSession";
 
 export function SellerLoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { session, isSeller, loading } = useSellerSession();
+  const { isSeller, loading, refresh } = useSellerSession();
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const from = (location.state as { from?: string } | null)?.from ?? "/seller";
 
-  if (!loading && session && isSeller) {
+  if (!loading && isSeller) {
     return <Navigate to={from} replace />;
   }
 
@@ -27,16 +27,15 @@ export function SellerLoginPage() {
     setSubmitting(true);
     setError(null);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-
-    setSubmitting(false);
-
-    if (signInError) {
-      setError(signInError.message);
-      return;
+    try {
+      await sellerLogin(username, password);
+      await refresh();
+      navigate(from, { replace: true });
+    } catch (signInError) {
+      setError(signInError instanceof Error ? signInError.message : "Invalid seller credentials");
+    } finally {
+      setSubmitting(false);
     }
-
-    navigate(from, { replace: true });
   };
 
   return (
@@ -55,12 +54,11 @@ export function SellerLoginPage() {
 
           <div className="mt-6 space-y-4">
             <TextField
-              label="Email"
-              type="email"
-              autoComplete="email"
+              label="Username"
+              autoComplete="username"
               required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
             />
             <TextField
               label="Password"

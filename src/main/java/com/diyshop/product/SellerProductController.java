@@ -6,6 +6,7 @@ import com.diyshop.product.dto.UpdateProductVisibilityRequest;
 import com.diyshop.product.dto.UpsertProductRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -66,5 +67,11 @@ public class SellerProductController {
             @Valid @RequestBody UpdateInventoryRequest request
     ) {
         return sellerProductService.updateInventory(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProduct(@PathVariable Long id) {
+        sellerProductService.deleteProduct(id);
     }
 }

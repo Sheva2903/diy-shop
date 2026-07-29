@@ -50,4 +50,12 @@ public class ProductImageController {
             @PathVariable Long imageId) {
         productImageService.deleteImage(productId, imageId);
     }
+
+    @PutMapping("/reorder")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reorderImages(
+            @PathVariable Long productId,
+            @RequestBody List<Long> orderedImageIds) {
+        productImageService.reorderImages(productId, orderedImageIds);
+    }
 }

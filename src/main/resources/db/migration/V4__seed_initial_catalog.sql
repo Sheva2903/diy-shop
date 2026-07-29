@@ -22,7 +22,7 @@ values
 
 insert into product_images (product_id, image_url, primary_image, sort_order)
 values
-    (1, 'https://example.com/images/small-flower-painting.jpg', true, 1),
-    (2, 'https://example.com/images/crochet-keychain.jpg', true, 1),
-    (3, 'https://example.com/images/decorative-candle.jpg', true, 1),
-    (4, 'https://example.com/images/draft-product.jpg', true, 1);
+    (1, 'https://i.pinimg.com/736x/c1/f4/ae/c1f4ae54f36d72e880c22bbcbef25992.jpg', true, 1),
+    (2, 'https://i.pinimg.com/1200x/26/92/6f/26926fe06aef485719b48fda830f4a4d.jpg', true, 1),
+    (3, 'https://i.pinimg.com/736x/16/13/d3/1613d38259cf8241c77e34cdb73bfd90.jpg', true, 1),
+    (4, 'https://i.pinimg.com/1200x/2c/96/79/2c9679a36e4cf90117a915e2a957c359.jpg', true, 1);

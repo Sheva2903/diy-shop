@@ -1,13 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { getShopSettings, updateShopSettings, type ShopSettings } from "../../api/settings";
+import {
+  getShopSettings,
+  updateShopSettings,
+  type ShopSettings,
+  type ShopSettingsInput
+} from "../../api/settings";
 import { Button } from "../../components/ui/Button";
 import { ErrorState, Skeleton } from "../../components/ui/Feedback";
 import { SelectField, TextAreaField, TextField } from "../../components/ui/Field";
 import { useToast } from "../../components/ui/toast";
 import { cn } from "../../lib/cn";
-import { supabase } from "../../lib/supabase";
 import { useSellerSession } from "../auth/useSellerSession";
 
 type TabId = "shop" | "payment" | "shipping" | "account";
@@ -19,11 +23,10 @@ const tabs: { id: TabId; label: string }[] = [
   { id: "account", label: "Seller account" }
 ];
 
-type Draft = Omit<ShopSettings, "id" | "updated_at">;
+type Draft = ShopSettingsInput;
 
 function toDraft(settings: ShopSettings): Draft {
-  const { id, updated_at, ...rest } = settings;
-  void id;
+  const { updated_at, ...rest } = settings;
   void updated_at;
   return rest;
 }
@@ -45,52 +48,19 @@ export function SellerSettingsPage() {
 function SettingsForm({ settings }: { settings: ShopSettings }) {
   const queryClient = useQueryClient();
   const toast = useToast();
-  const { email } = useSellerSession();
+  const { username } = useSellerSession();
 
   const [tab, setTab] = useState<TabId>("shop");
   const [draft, setDraft] = useState<Draft>(() => toDraft(settings));
 
   const saveMutation = useMutation({
-    mutationFn: (patch: Partial<Draft>) => updateShopSettings(patch),
+    mutationFn: (next: Draft) => updateShopSettings(next),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["shop-settings"] });
       toast.success("Settings saved");
     },
     onError: (error: Error) => toast.error(error.message)
   });
-
-  // ------------------------------------------------------- password change
-  const [passwords, setPasswords] = useState({ next: "", confirm: "" });
-  const [passwordError, setPasswordError] = useState<string | undefined>();
-  const [changingPassword, setChangingPassword] = useState(false);
-
-  const changePassword = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (passwords.next.length < 8) {
-      setPasswordError("Use at least 8 characters");
-      return;
-    }
-    if (passwords.next !== passwords.confirm) {
-      setPasswordError("The two passwords do not match");
-      return;
-    }
-
-    setPasswordError(undefined);
-    setChangingPassword(true);
-
-    const { error } = await supabase.auth.updateUser({ password: passwords.next });
-
-    setChangingPassword(false);
-
-    if (error) {
-      setPasswordError(error.message);
-      return;
-    }
-
-    setPasswords({ next: "", confirm: "" });
-    toast.success("Password updated");
-  };
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((current) => ({ ...current, [key]: value }));
@@ -269,32 +239,19 @@ function SettingsForm({ settings }: { settings: ShopSettings }) {
         )}
 
         {tab === "account" && (
-          <form onSubmit={changePassword}>
+          <div>
             <h2 className="text-[16px] font-semibold text-text">Seller account</h2>
 
             <div className="mt-5 max-w-sm space-y-4">
-              <TextField label="Sign-in email" value={email ?? ""} disabled />
-              <TextField
-                label="New password"
-                type="password"
-                autoComplete="new-password"
-                value={passwords.next}
-                onChange={(event) => setPasswords((p) => ({ ...p, next: event.target.value }))}
-              />
-              <TextField
-                label="Confirm new password"
-                type="password"
-                autoComplete="new-password"
-                value={passwords.confirm}
-                error={passwordError}
-                onChange={(event) => setPasswords((p) => ({ ...p, confirm: event.target.value }))}
-              />
+              <TextField label="Username" value={username ?? ""} disabled />
             </div>
 
-            <Button type="submit" size="lg" className="mt-6" disabled={changingPassword}>
-              {changingPassword ? "Updating..." : "Update password"}
-            </Button>
-          </form>
+            <p className="mt-5 max-w-sm text-[14px] text-text-muted">
+              The seller credentials come from the DIY_SHOP_SELLER_USERNAME and
+              DIY_SHOP_SELLER_PASSWORD_HASH environment variables. Change the password by
+              replacing the BCrypt hash there and restarting the backend.
+            </p>
+          </div>
         )}
       </div>
     </div>
