@@ -1,5 +1,4 @@
 import { apiFetch, resolveAssetUrl } from "../lib/api";
-import { supabase } from "../lib/supabase";
 import type {
   CategoryRow,
   DashboardStats,
@@ -35,17 +34,41 @@ export type SellerOrderListItem = Pick<
 export type SellerOrderDetail = OrderRow & { items: OrderItemRow[] };
 
 // ------------------------------------------------------------------ dashboard
-//
-// Not yet migrated: there is no seller_dashboard_stats equivalent in the
-// Spring Boot backend, and building one is a deferred scope decision. This
-// still depends on a Supabase Auth session, which the rest of this file no
-// longer establishes, so it will fail once seller sign-in moves to Spring
-// Security sessions until this function is migrated.
+
+type DashboardStatsResponseDto = {
+  ordersToday: number;
+  ordersYesterday: number;
+  revenue7Days: number;
+  revenuePrevious7Days: number;
+  activeProducts: number;
+  pendingOrders: number;
+  lowStock: {
+    id: number;
+    nameVi: string;
+    nameEn: string;
+    inventoryQuantity: number;
+    imageUrl: string | null;
+  }[];
+};
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const { data, error } = await supabase.rpc("seller_dashboard_stats");
-  if (error) throw error;
-  return data as DashboardStats;
+  const stats = await apiFetch<DashboardStatsResponseDto>("/api/seller/dashboard/stats");
+
+  return {
+    ordersToday: stats.ordersToday,
+    ordersYesterday: stats.ordersYesterday,
+    revenue7Days: Number(stats.revenue7Days),
+    revenuePrevious7Days: Number(stats.revenuePrevious7Days),
+    activeProducts: stats.activeProducts,
+    pendingOrders: stats.pendingOrders,
+    lowStock: stats.lowStock.map((product) => ({
+      id: product.id,
+      name_vi: product.nameVi,
+      name_en: product.nameEn,
+      inventory_quantity: product.inventoryQuantity,
+      image_url: resolveAssetUrl(product.imageUrl)
+    }))
+  };
 }
 
 // -------------------------------------------------------- category analytics
@@ -57,58 +80,35 @@ export type CategorySeries = {
   rows: Record<string, string | number>[];
 };
 
-type RevenueJoinRow = {
-  quantity: number;
-  line_total: number;
-  orders: { created_at: string; order_status: OrderStatus } | null;
-  products: {
-    category_id: number;
-    categories: { id: number; name_vi: string; name_en: string } | null;
-  } | null;
+/** One (day, category) total; days without orders are simply absent. */
+type CategoryRevenuePointDto = {
+  date: string;
+  categoryId: number;
+  categoryNameVi: string;
+  categoryNameEn: string;
+  revenue: number;
 };
 
-/**
- * Revenue per category per day for the last `days` days.
- *
- * Not yet migrated: same reasoning as getDashboardStats above — no Spring
- * Boot equivalent exists yet, and this depends on a Supabase Auth session
- * that no longer gets established.
- */
+/** Revenue per category per day for the last `days` days. */
 export async function getCategoryRevenueSeries(days: number): Promise<CategorySeries> {
   const since = new Date();
   since.setDate(since.getDate() - (days - 1));
   since.setHours(0, 0, 0, 0);
 
-  const { data, error } = await supabase
-    .from("order_items")
-    .select(
-      `
-      quantity, line_total,
-      orders!inner ( created_at, order_status ),
-      products!inner ( category_id, categories ( id, name_vi, name_en ) )
-    `
-    )
-    .gte("orders.created_at", since.toISOString())
-    .neq("orders.order_status", "CANCELLED")
-    .returns<RevenueJoinRow[]>();
-
-  if (error) throw error;
+  const points = await apiFetch<CategoryRevenuePointDto[]>(
+    `/api/seller/dashboard/revenue?days=${days}`
+  );
 
   const categories = new Map<string, { key: string; nameVi: string; nameEn: string }>();
   const byDate = new Map<string, Record<string, number>>();
 
-  for (const row of data ?? []) {
-    const category = row.products?.categories;
-    const createdAt = row.orders?.created_at;
-    if (!category || !createdAt) continue;
+  for (const point of points) {
+    const key = `c${point.categoryId}`;
+    categories.set(key, { key, nameVi: point.categoryNameVi, nameEn: point.categoryNameEn });
 
-    const key = `c${category.id}`;
-    categories.set(key, { key, nameVi: category.name_vi, nameEn: category.name_en });
-
-    const date = createdAt.slice(0, 10);
-    const bucket = byDate.get(date) ?? {};
-    bucket[key] = (bucket[key] ?? 0) + Number(row.line_total);
-    byDate.set(date, bucket);
+    const bucket = byDate.get(point.date) ?? {};
+    bucket[key] = (bucket[key] ?? 0) + Number(point.revenue);
+    byDate.set(point.date, bucket);
   }
 
   const orderedCategories = [...categories.values()].sort((a, b) => a.key.localeCompare(b.key));

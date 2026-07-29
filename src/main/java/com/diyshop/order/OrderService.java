@@ -8,8 +8,9 @@ import com.diyshop.order.dto.CreateOrderRequest;
 import com.diyshop.order.dto.OrderResponse;
 import com.diyshop.product.Product;
 import com.diyshop.product.ProductRepository;
+import com.diyshop.settings.ShopSettings;
+import com.diyshop.settings.ShopSettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -35,7 +36,7 @@ public class OrderService {
     private final CustomerOrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final BankTransferInstructionService bankTransferInstructionService;
-    private final BigDecimal flatShippingFee;
+    private final ShopSettingsService shopSettingsService;
     private final SecureRandom secureRandom = new SecureRandom();
     private final Clock clock;
 
@@ -44,23 +45,35 @@ public class OrderService {
             CustomerOrderRepository orderRepository,
             ProductRepository productRepository,
             BankTransferInstructionService bankTransferInstructionService,
-            @Value("${shop.shipping.flat-fee}") BigDecimal flatShippingFee
+            ShopSettingsService shopSettingsService
     ) {
-        this(orderRepository, productRepository, bankTransferInstructionService, flatShippingFee, Clock.system(SHOP_ZONE));
+        this(orderRepository, productRepository, bankTransferInstructionService, shopSettingsService, Clock.system(SHOP_ZONE));
     }
 
     OrderService(
             CustomerOrderRepository orderRepository,
             ProductRepository productRepository,
             BankTransferInstructionService bankTransferInstructionService,
-            BigDecimal flatShippingFee,
+            ShopSettingsService shopSettingsService,
             Clock clock
     ) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.bankTransferInstructionService = bankTransferInstructionService;
-        this.flatShippingFee = flatShippingFee;
+        this.shopSettingsService = shopSettingsService;
         this.clock = clock;
+    }
+
+    /** Free shipping wins once the subtotal reaches the configured threshold. */
+    private BigDecimal shippingFeeFor(BigDecimal subtotal) {
+        ShopSettings settings = shopSettingsService.getSettings();
+        BigDecimal threshold = settings.getFreeShippingThreshold();
+
+        if (threshold != null && subtotal.compareTo(threshold) >= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        return settings.getShippingFlatFee();
     }
 
     @Transactional
@@ -107,9 +120,11 @@ public class OrderService {
             order.addItem(item);
         }
 
+        BigDecimal shippingFee = shippingFeeFor(subtotal);
+
         order.setSubtotal(subtotal);
-        order.setShippingFee(flatShippingFee);
-        order.setTotalAmount(subtotal.add(flatShippingFee));
+        order.setShippingFee(shippingFee);
+        order.setTotalAmount(subtotal.add(shippingFee));
 
         CustomerOrder savedOrder = orderRepository.save(order);
 

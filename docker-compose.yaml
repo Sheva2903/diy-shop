@@ -32,11 +32,6 @@ services:
       SPRING_DATASOURCE_USERNAME: diyshop
       SPRING_DATASOURCE_PASSWORD: diyshop123
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      BANK_TRANSFER_BANK_NAME: Vietcombank
-      BANK_TRANSFER_BANK_CODE: vietcombank
-      BANK_TRANSFER_BANK_BIN: "970436"
-      BANK_TRANSFER_ACCOUNT_NUMBER: "0123456789"
-      BANK_TRANSFER_ACCOUNT_NAME: "DIY SHOP"
     depends_on:
       postgres:
         condition: service_healthy

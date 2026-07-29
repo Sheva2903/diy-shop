@@ -1,9 +1,6 @@
 /**
- * Hand-written schema types for the diy-shop Supabase project.
- *
- * Tables use snake_case (the schema was migrated straight from the Spring Boot
- * JPA entities). The RPCs return camelCase JSON so the order shapes read the
- * same on both sides of the wire.
+ * Row shapes the UI works in. They stay snake_case to match the database
+ * columns; the api/ modules map the camelCase JSON the API speaks onto them.
  */
 
 export type OrderStatus = "PENDING" | "CONFIRMED" | "SHIPPING" | "DELIVERED" | "CANCELLED";
@@ -77,29 +74,7 @@ export type OrderItemRow = {
   line_total: number;
 };
 
-export type ShopSettingsRow = {
-  id: number;
-  shop_name: string;
-  description_vi: string;
-  description_en: string;
-  logo_url: string | null;
-  contact_email: string;
-  contact_phone: string;
-  bank_name: string;
-  bank_code: string;
-  bank_bin: string;
-  account_number: string;
-  account_name: string;
-  vietqr_template: "compact" | "compact2" | "qr_only" | "print";
-  payment_due_hours: number;
-  shipping_flat_fee: number;
-  free_shipping_threshold: number | null;
-  shipping_note_vi: string;
-  shipping_note_en: string;
-  updated_at: string;
-};
-
-/** Shape returned by the create_order / track_order RPCs. */
+/** Included in an order response when the payment method is BANK_TRANSFER. */
 export type BankTransferInstructions = {
   bankName: string;
   bankBin: string;
@@ -169,35 +144,4 @@ export type DashboardStats = {
     inventory_quantity: number;
     image_url: string | null;
   }[];
-};
-
-type TableDef<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
-  Row: Row;
-  Insert: Insert;
-  Update: Update;
-  Relationships: [];
-};
-
-export type Database = {
-  public: {
-    Tables: {
-      categories: TableDef<CategoryRow>;
-      products: TableDef<ProductRow>;
-      product_images: TableDef<ProductImageRow>;
-      orders: TableDef<OrderRow>;
-      order_items: TableDef<OrderItemRow>;
-      shop_settings: TableDef<ShopSettingsRow>;
-    };
-    Views: Record<never, never>;
-    Functions: {
-      create_order: { Args: { payload: CreateOrderPayload }; Returns: OrderView };
-      track_order: {
-        Args: { p_order_code: string; p_phone_number: string };
-        Returns: OrderView;
-      };
-      seller_dashboard_stats: { Args: Record<never, never>; Returns: DashboardStats };
-    };
-    Enums: Record<never, never>;
-    CompositeTypes: Record<never, never>;
-  };
 };

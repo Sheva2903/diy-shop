@@ -72,26 +72,11 @@ source .seller-dev.env
 
 These credentials are only for local development. Do not reuse them in a deployed environment or commit `.seller-dev.env`.
 
-### 3. Configure bank transfer details
+### 3. Configure bank transfer and shipping details
 
-Bank transfer checkout requires these environment variables. The backend fails at startup if they are missing because bank transfer is part of the MVP payment flow.
+These live in the `shop_settings` table rather than in environment variables, so the seller can change them without a redeploy. Migration `V9__create_shop_settings.sql` seeds the single row with local development values; edit them under **Seller Dashboard → Settings**, or through `PUT /api/seller/settings`.
 
-```bash
-export BANK_TRANSFER_BANK_NAME='Vietcombank'
-export BANK_TRANSFER_BANK_CODE='vietcombank'
-export BANK_TRANSFER_BANK_BIN='970436'
-export BANK_TRANSFER_ACCOUNT_NUMBER='<account-number>'
-export BANK_TRANSFER_ACCOUNT_NAME='<account-name>'
-```
-
-Optional values:
-
-```bash
-export BANK_TRANSFER_TEMPLATE='compact'
-export BANK_TRANSFER_PAYMENT_DUE_HOURS='24'
-```
-
-`BANK_TRANSFER_BANK_CODE` is the bank identifier used in the public VietQR image URL. `BANK_TRANSFER_BANK_BIN` is the six-digit Vietnamese bank BIN shown in API responses.
+`bank_code` is the bank identifier used in the public VietQR image URL. `bank_bin` is the six-digit Vietnamese bank BIN shown in API responses. `shipping_flat_fee` applies unless the subtotal reaches `free_shipping_threshold`, in which case shipping is free.
 
 ### 4. Run tests
 
@@ -164,6 +149,7 @@ GET  /api/products
 GET  /api/products/{id}
 POST /api/orders
 GET  /api/orders/track?orderCode=...&phoneNumber=...
+GET  /api/settings
 ```
 
 Seller order endpoints:
@@ -173,6 +159,16 @@ GET   /api/seller/orders
 GET   /api/seller/orders/{orderCode}
 PATCH /api/seller/orders/{orderCode}/payment
 PATCH /api/seller/orders/{orderCode}/status
+```
+
+Seller settings and dashboard endpoints:
+
+```text
+GET /api/seller/settings
+PUT /api/seller/settings
+
+GET /api/seller/dashboard/stats
+GET /api/seller/dashboard/revenue?days=30
 ```
 
 Seller catalog endpoints:
@@ -254,7 +250,7 @@ If a local development database reports a Flyway checksum mismatch after migrati
 Latest migration:
 
 ```text
-V6__add_product_image_storage.sql
+V9__create_shop_settings.sql
 ```
 
 ## Useful commands

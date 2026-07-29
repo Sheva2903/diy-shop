@@ -10,9 +10,28 @@ export class ApiError extends Error {
   }
 }
 
-function readCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
+/**
+ * Spring Security defaults to XOR-encoding the CSRF token, so the value that has
+ * to travel in X-XSRF-TOKEN is the one this endpoint returns — not the raw UUID
+ * sitting in the XSRF-TOKEN cookie. Reading the cookie always yields a 403.
+ */
+let cachedCsrfToken: string | null = null;
+
+async function getCsrfToken(): Promise<string> {
+  if (cachedCsrfToken) return cachedCsrfToken;
+
+  const response = await fetch(`${API_BASE_URL}/api/seller/auth/csrf`, {
+    credentials: "include",
+    headers: { Accept: "application/json" }
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Could not obtain a CSRF token", response.status);
+  }
+
+  const { token } = (await response.json()) as { token: string };
+  cachedCsrfToken = token;
+  return token;
 }
 
 type ApiFetchOptions = Omit<RequestInit, "body"> & { json?: unknown; body?: BodyInit };
@@ -29,18 +48,27 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   }
 
   const httpMethod = method ?? "GET";
-  if (httpMethod !== "GET" && httpMethod !== "HEAD") {
-    const csrfToken = readCookie("XSRF-TOKEN");
-    if (csrfToken) finalHeaders.set("X-XSRF-TOKEN", csrfToken);
-  }
+  const needsCsrf = httpMethod !== "GET" && httpMethod !== "HEAD";
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...rest,
-    method: httpMethod,
-    headers: finalHeaders,
-    body,
-    credentials: "include"
-  });
+  const send = async () =>
+    fetch(`${API_BASE_URL}${path}`, {
+      ...rest,
+      method: httpMethod,
+      headers: finalHeaders,
+      body,
+      credentials: "include"
+    });
+
+  if (needsCsrf) finalHeaders.set("X-XSRF-TOKEN", await getCsrfToken());
+
+  let response = await send();
+
+  // Logging in and out rotates the token, so a cached one can go stale mid-session.
+  if (needsCsrf && response.status === 403) {
+    cachedCsrfToken = null;
+    finalHeaders.set("X-XSRF-TOKEN", await getCsrfToken());
+    response = await send();
+  }
 
   if (response.status === 204) {
     return undefined as T;

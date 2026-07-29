@@ -3,6 +3,7 @@ package com.diyshop.product;
 import com.diyshop.category.Category;
 import com.diyshop.category.CategoryRepository;
 import com.diyshop.common.exception.BadRequestException;
+import com.diyshop.order.OrderItemRepository;
 import com.diyshop.product.dto.UpsertProductRequest;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +25,7 @@ class SellerProductServiceTests {
         CategoryRepository categoryRepository = mock(CategoryRepository.class);
         ProductImageService productImageService = mock(ProductImageService.class);
         ProductImageResponseMapper imageResponseMapper = mock(ProductImageResponseMapper.class);
+        OrderItemRepository orderItemRepository = mock(OrderItemRepository.class);
         Category category = new Category();
         category.setVisible(true);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
@@ -32,7 +34,8 @@ class SellerProductServiceTests {
                 productRepository,
                 categoryRepository,
                 productImageService,
-                imageResponseMapper
+                imageResponseMapper,
+                orderItemRepository
         );
 
         UpsertProductRequest request = new UpsertProductRequest(
