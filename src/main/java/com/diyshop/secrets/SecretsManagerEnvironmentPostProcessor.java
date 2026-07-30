@@ -20,7 +20,11 @@ public class SecretsManagerEnvironmentPostProcessor implements EnvironmentPostPr
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        if (!"true".equalsIgnoreCase(System.getenv(ENABLED_FLAG))) {
+        String flag = System.getenv(ENABLED_FLAG);
+        System.out.println("[SecretsManagerPostProcessor] " + ENABLED_FLAG + " = " + flag);
+
+        if (!"true".equalsIgnoreCase(flag)) {
+            System.out.println("[SecretsManagerPostProcessor] disabled, skipping");
             return;
         }
 
@@ -35,16 +39,21 @@ public class SecretsManagerEnvironmentPostProcessor implements EnvironmentPostPr
             Map<String, String> rdsSecret = mapper.readValue(fetchSecret(client, RDS_SECRET_ID), Map.class);
             props.put("DB_USERNAME", rdsSecret.get("username"));
             props.put("DB_PASSWORD", rdsSecret.get("password"));
+            System.out.println("[SecretsManagerPostProcessor] loaded DB_USERNAME=" + rdsSecret.get("username"));
 
             Map<String, String> sellerSecret = mapper.readValue(fetchSecret(client, SELLER_SECRET_ID), Map.class);
             props.put("DIY_SHOP_SELLER_USERNAME", sellerSecret.get("DIY_SHOP_SELLER_USERNAME"));
             props.put("DIY_SHOP_SELLER_PASSWORD_HASH", sellerSecret.get("DIY_SHOP_SELLER_PASSWORD_HASH"));
+            System.out.println("[SecretsManagerPostProcessor] loaded seller secret OK");
 
         } catch (Exception e) {
+            System.err.println("[SecretsManagerPostProcessor] FAILED: " + e);
+            e.printStackTrace();
             throw new IllegalStateException("Failed to load secrets from Secrets Manager", e);
         }
 
         environment.getPropertySources().addFirst(new MapPropertySource("secretsManager", props));
+        System.out.println("[SecretsManagerPostProcessor] property source added successfully");
     }
 
     private String fetchSecret(SecretsManagerClient client, String secretId) {
