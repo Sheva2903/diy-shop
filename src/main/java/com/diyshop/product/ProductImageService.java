@@ -167,6 +167,18 @@ public class ProductImageService {
         }
     }
 
+    @Transactional
+    public void reorderImages(Long productId, List<Long> orderedImageIds) {
+        ensureProductExists(productId);
+
+        for (int index = 0; index < orderedImageIds.size(); index++) {
+            Long imageId = orderedImageIds.get(index);
+            ProductImage image = productImageRepository.findByIdAndProduct_Id(imageId, productId)
+                    .orElseThrow(() -> notFound("Product image not found: " + imageId));
+            image.setSortOrder(index);
+        }
+    }
+
     @Transactional(readOnly = true)
     public boolean productHasImages(Long productId) {
         return productImageRepository.existsByProduct_Id(productId);

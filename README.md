@@ -160,6 +160,7 @@ GET  /api/products
 GET  /api/products/{id}
 POST /api/orders
 GET  /api/orders/track?orderCode=...&phoneNumber=...
+GET  /api/settings
 ```
 
 Seller orders:

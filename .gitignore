@@ -72,3 +72,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# /notes
+
+*.pem
+
+# TASK.md
+# aws-sprint-plan.md

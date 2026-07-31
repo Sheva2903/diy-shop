@@ -3,6 +3,8 @@ package com.diyshop.banktransfer;
 import com.diyshop.order.CustomerOrder;
 import com.diyshop.order.PaymentMethod;
 import com.diyshop.order.dto.BankTransferInstructionsResponse;
+import com.diyshop.settings.ShopSettings;
+import com.diyshop.settings.ShopSettingsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -17,10 +19,10 @@ public class BankTransferInstructionService {
 
     private static final int MAX_TRANSFER_CONTENT_LENGTH = 25;
 
-    private final BankTransferProperties properties;
+    private final ShopSettingsService shopSettingsService;
 
-    public BankTransferInstructionService(BankTransferProperties properties) {
-        this.properties = properties;
+    public BankTransferInstructionService(ShopSettingsService shopSettingsService) {
+        this.shopSettingsService = shopSettingsService;
     }
 
     public BankTransferInstructionsResponse createFor(CustomerOrder order) {
@@ -28,18 +30,19 @@ public class BankTransferInstructionService {
             return null;
         }
 
+        ShopSettings settings = shopSettingsService.getSettings();
         String transferContent = createTransferContent(order.getOrderCode());
         BigDecimal amount = order.getTotalAmount();
 
         return new BankTransferInstructionsResponse(
-                properties.getBankName(),
-                properties.getBankBin(),
-                properties.getAccountNumber(),
-                properties.getAccountName(),
+                settings.getBankName(),
+                settings.getBankBin(),
+                settings.getAccountNumber(),
+                settings.getAccountName(),
                 amount,
                 transferContent,
-                createQrImageUrl(amount, transferContent),
-                paymentDueAt(order.getCreatedAt())
+                createQrImageUrl(settings, amount, transferContent),
+                paymentDueAt(settings, order.getCreatedAt())
         );
     }
 
@@ -58,19 +61,19 @@ public class BankTransferInstructionService {
         return sanitized;
     }
 
-    private String createQrImageUrl(BigDecimal amount, String transferContent) {
+    private String createQrImageUrl(ShopSettings settings, BigDecimal amount, String transferContent) {
         String baseUrl = "https://img.vietqr.io/image/"
-                + properties.getBankCode()
+                + settings.getBankCode()
                 + "-"
-                + properties.getAccountNumber()
+                + settings.getAccountNumber()
                 + "-"
-                + properties.getTemplate().imageCode()
+                + settings.getVietqrTemplate().imageCode()
                 + ".jpg";
 
         return UriComponentsBuilder.fromUriString(baseUrl)
                 .queryParam("amount", toWholeVnd(amount))
                 .queryParam("addInfo", transferContent)
-                .queryParam("accountName", properties.getAccountName())
+                .queryParam("accountName", settings.getAccountName())
                 .build()
                 .encode()
                 .toUriString();
@@ -80,7 +83,7 @@ public class BankTransferInstructionService {
         return amount.setScale(0, RoundingMode.UNNECESSARY).toPlainString();
     }
 
-    private Instant paymentDueAt(Instant createdAt) {
-        return createdAt.plus(Duration.ofHours(properties.getPaymentDueHours()));
+    private Instant paymentDueAt(ShopSettings settings, Instant createdAt) {
+        return createdAt.plus(Duration.ofHours(settings.getPaymentDueHours()));
     }
 }
