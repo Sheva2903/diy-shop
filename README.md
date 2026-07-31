@@ -4,13 +4,23 @@ A DIY & handmade goods storefront: Spring Boot API + React storefront + PostgreS
 
 This README covers running the project locally. For scope and MVP requirements see [`docs/project-spec.md`](docs/project-spec.md).
 
+## Demo
+
+This is our interface of website, if you want to see more just run it locally following instructions
+| | |
+| --- | --- |
+| ![Homepage](images/homepage.png) | ![Products listing](images/products.png) |
+| **Homepage** - hero banner, featured categories, and featured products for the React storefront. | **Products listing** - full catalog with search, category, price-range, and sort filters. |
+| ![Seller dashboard](images/seller-dashboard.png) | ![Order management](images/order-dashboard.png) |
+| **Seller dashboard** - revenue by category, orders to process, and low-stock alerts at a glance. | **Order management** - seller view of all orders with status/payment filters and date range search. |
+
 ## Prerequisites
 
-| Tool | Version | Used for |
-| --- | --- | --- |
-| Java | 17 | Backend (`./mvnw` downloads Maven itself) |
-| Docker | any recent | Local PostgreSQL |
-| Node.js | 20+ | React storefront |
+| Tool    | Version    | Used for                                  |
+| ------- | ---------- | ----------------------------------------- |
+| Java    | 17         | Backend (`./mvnw` downloads Maven itself) |
+| Docker  | any recent | Local PostgreSQL                          |
+| Node.js | 20+        | React storefront                          |
 
 ## Run it locally
 
@@ -82,12 +92,12 @@ Runs on `http://localhost:5173`. Vite proxies `/api/**` and `/media/**` to the b
 
 ## Where things are
 
-| URL | What |
-| --- | --- |
-| `http://localhost:5173` | React storefront (catalog, product detail, VI/EN switch) |
-| `http://localhost:8081` | Legacy static customer UI — still the only place with checkout + order tracking |
-| `http://localhost:8081/api/health` | Health check |
-| `localhost:5432` | PostgreSQL |
+| URL                                | What                                                                            |
+| ---------------------------------- | ------------------------------------------------------------------------------- |
+| `http://localhost:5173`            | React storefront (catalog, product detail, VI/EN switch)                        |
+| `http://localhost:8081`            | Legacy static customer UI — still the only place with checkout + order tracking |
+| `http://localhost:8081/api/health` | Health check                                                                    |
+| `localhost:5432`                   | PostgreSQL                                                                      |
 
 The React app does not cover checkout or order tracking yet; those flows live in [`src/main/resources/static`](src/main/resources/static) until it does.
 
@@ -95,28 +105,28 @@ The React app does not cover checkout or order tracking yet; those flows live in
 
 Required — startup fails without them:
 
-| Variable | Notes |
-| --- | --- |
-| `DIY_SHOP_SELLER_USERNAME` | Seller login name |
-| `DIY_SHOP_SELLER_PASSWORD_HASH` | BCrypt hash, never a plain-text password |
-| `BANK_TRANSFER_BANK_NAME` | Display name of the receiving bank |
-| `BANK_TRANSFER_BANK_CODE` | Bank identifier used in the public VietQR image URL |
-| `BANK_TRANSFER_BANK_BIN` | Six-digit Vietnamese bank BIN returned in API responses |
-| `BANK_TRANSFER_ACCOUNT_NUMBER` | Receiving account number |
-| `BANK_TRANSFER_ACCOUNT_NAME` | Receiving account holder |
+| Variable                        | Notes                                                   |
+| ------------------------------- | ------------------------------------------------------- |
+| `DIY_SHOP_SELLER_USERNAME`      | Seller login name                                       |
+| `DIY_SHOP_SELLER_PASSWORD_HASH` | BCrypt hash, never a plain-text password                |
+| `BANK_TRANSFER_BANK_NAME`       | Display name of the receiving bank                      |
+| `BANK_TRANSFER_BANK_CODE`       | Bank identifier used in the public VietQR image URL     |
+| `BANK_TRANSFER_BANK_BIN`        | Six-digit Vietnamese bank BIN returned in API responses |
+| `BANK_TRANSFER_ACCOUNT_NUMBER`  | Receiving account number                                |
+| `BANK_TRANSFER_ACCOUNT_NAME`    | Receiving account holder                                |
 
 Optional — sensible defaults for local development:
 
-| Variable | Default | Notes |
-| --- | --- | --- |
-| `BANK_TRANSFER_TEMPLATE` | `compact` | VietQR image template |
-| `BANK_TRANSFER_PAYMENT_DUE_HOURS` | `24` | Payment window for bank transfer orders |
-| `IMAGE_STORAGE_PROVIDER` | `local` | `local` or `s3` |
-| `IMAGE_STORAGE_LOCAL_DIRECTORY` | `./uploads/product-images` | Served at `/media/product-images/**`, Git-ignored |
-| `IMAGE_STORAGE_MAX_FILE_SIZE` | `5MB` | JPEG, PNG, and WebP are accepted |
-| `IMAGE_STORAGE_S3_BUCKET` | — | Required when the provider is `s3` |
-| `AWS_REGION` | `ap-southeast-1` | S3 region |
-| `IMAGE_STORAGE_S3_URL_DURATION_MINUTES` | `60` | Lifetime of presigned display URLs |
+| Variable                                | Default                    | Notes                                             |
+| --------------------------------------- | -------------------------- | ------------------------------------------------- |
+| `BANK_TRANSFER_TEMPLATE`                | `compact`                  | VietQR image template                             |
+| `BANK_TRANSFER_PAYMENT_DUE_HOURS`       | `24`                       | Payment window for bank transfer orders           |
+| `IMAGE_STORAGE_PROVIDER`                | `local`                    | `local` or `s3`                                   |
+| `IMAGE_STORAGE_LOCAL_DIRECTORY`         | `./uploads/product-images` | Served at `/media/product-images/**`, Git-ignored |
+| `IMAGE_STORAGE_MAX_FILE_SIZE`           | `5MB`                      | JPEG, PNG, and WebP are accepted                  |
+| `IMAGE_STORAGE_S3_BUCKET`               | —                          | Required when the provider is `s3`                |
+| `AWS_REGION`                            | `ap-southeast-1`           | S3 region                                         |
+| `IMAGE_STORAGE_S3_URL_DURATION_MINUTES` | `60`                       | Lifetime of presigned display URLs                |
 
 The S3 adapter uses the AWS SDK default credential chain — use an IAM role rather than putting access keys in this repository. S3 objects stay private and API responses carry temporary presigned URLs.
 
