@@ -1,50 +1,20 @@
 # DIY Shop
 
-Spring Boot application for a DIY & handmade goods storefront.
+A DIY & handmade goods storefront: Spring Boot API + React storefront + PostgreSQL.
 
-## Repository scope
-
-This repository currently contains the Spring Boot backend, local development setup, and a lightweight static customer UI.
-Project scope and MVP requirements are documented in [`docs/project-spec.md`](docs/project-spec.md).
-
-## Current progress
-
-Implemented:
-
-- Customer storefront APIs for categories, products, search, product detail, and product images
-- Guest checkout with direct order creation
-- Order code generation and guest order tracking by order code + phone number
-- Inventory reservation on checkout and inventory restore on seller cancellation
-- Seller order APIs for list, detail, payment confirmation, status updates, and cancellation
-- Lightweight static customer UI served by Spring Boot
-- Seller session authentication and seller-only category/product management APIs
-- Multipart product image upload with local storage and an AWS S3 storage adapter
-- Bank transfer instructions with VietQR public image URLs for bank-transfer orders
-
-Not implemented yet:
-
-- Seller dashboard UI
-- Email notifications
-- AWS deployment configuration
-
-## Stack
-
-- Java 17
-- Spring Boot
-- Spring Web MVC
-- Spring Data JPA
-- Flyway
-- PostgreSQL
-- Docker
-- Static HTML/CSS/JavaScript for the simple customer UI
-- AWS SDK for Java 2.x
+This README covers running the project locally. For scope and MVP requirements see [`docs/project-spec.md`](docs/project-spec.md).
 
 ## Prerequisites
 
-- Java 17
-- Docker
+| Tool | Version | Used for |
+| --- | --- | --- |
+| Java | 17 | Backend (`./mvnw` downloads Maven itself) |
+| Docker | any recent | Local PostgreSQL |
+| Node.js | 20+ | React storefront |
 
-## Quick start
+## Run it locally
+
+Four steps, in this order. The backend refuses to start without step 2.
 
 ### 1. Start PostgreSQL
 
@@ -52,73 +22,55 @@ Not implemented yet:
 docker compose up -d
 ```
 
-### 2. Configure the seller account
+This starts `diy-shop-postgres` on `localhost:5432` with database/user/password `diyshop` / `diyshop` / `diyshop123`, matching the defaults in [`src/main/resources/application.properties`](src/main/resources/application.properties). Data persists in a Docker volume.
 
-Seller APIs require these environment variables. The password value must be a BCrypt hash, never a plain-text password.
+### 2. Set the required environment variables
+
+The backend reads seller credentials and bank transfer details from the environment and **fails at startup if they are missing** — there is no default.
+
+Generate the local seller account (`seller` / `seller123`) into the Git-ignored `.seller-dev.env`:
 
 ```bash
-export DIY_SHOP_SELLER_USERNAME='seller'
-export DIY_SHOP_SELLER_PASSWORD_HASH='<bcrypt-password-hash>'
+npm --prefix frontend run generate:seller
 ```
 
-For the fixed local development seller (`seller` / `seller123`), generate an ignored environment file from the frontend directory:
+Then copy [`.env.example`](.env.example) for the bank transfer values and fill in the account number and name (`.env.local` is Git-ignored):
 
 ```bash
-cd frontend
-npm run generate:seller
-cd ..
+cp .env.example .env.local
+```
+
+Load both into your shell:
+
+```bash
 source .seller-dev.env
+source .env.local
 ```
 
-These credentials are only for local development. Do not reuse them in a deployed environment or commit `.seller-dev.env`.
+Keep these in two files: `npm run generate:seller` overwrites `.seller-dev.env` every time it runs.
 
-### 3. Configure bank transfer and shipping details
+> The `seller` / `seller123` credentials are for local development only. Never reuse them in a deployed environment, and never commit either file.
 
-These live in the `shop_settings` table rather than in environment variables, so the seller can change them without a redeploy. Migration `V9__create_shop_settings.sql` seeds the single row with local development values; edit them under **Seller Dashboard → Settings**, or through `PUT /api/seller/settings`.
-
-`bank_code` is the bank identifier used in the public VietQR image URL. `bank_bin` is the six-digit Vietnamese bank BIN shown in API responses. `shipping_flat_fee` applies unless the subtotal reaches `free_shipping_threshold`, in which case shipping is free.
-
-### 4. Run tests
-
-macOS / Linux:
+### 3. Start the backend
 
 ```bash
-./mvnw test
+./mvnw spring-boot:run          # Windows: mvnw.cmd spring-boot:run
 ```
 
-Windows:
+Runs on `http://localhost:8081`. Flyway applies the migrations in [`src/main/resources/db/migration`](src/main/resources/db/migration) automatically on startup, including the seed catalog in `V4__seed_initial_catalog.sql`.
 
-```bat
-mvnw.cmd test
-```
-
-### 5. Run the application
-
-macOS / Linux:
+Check it is up:
 
 ```bash
-./mvnw spring-boot:run
+curl http://localhost:8081/api/health
+# {"status":"ok","app":"diy-shop"}
 ```
 
-Windows:
+Run this in the same terminal where you sourced the env files, otherwise the variables are not visible to the process.
 
-```bat
-mvnw.cmd spring-boot:run
-```
+### 4. Start the React storefront
 
-The app runs at:
-
-```text
-http://localhost:8081
-```
-
-The customer UI is served at the root URL.
-
-## React storefront development
-
-The in-progress React storefront lives in [`frontend`](frontend). It currently includes the customer catalog, category and keyword filters, product details, and Vietnamese/English switching.
-
-Start the Spring Boot API first, then in another terminal run:
+In a second terminal:
 
 ```bash
 cd frontend
@@ -126,21 +78,80 @@ npm install
 npm run dev
 ```
 
-The frontend runs at `http://localhost:5173`. Vite proxies `/api/**` and `/media/**` requests to Spring Boot at `http://localhost:8081`, so the frontend uses relative API URLs in development and production.
+Runs on `http://localhost:5173`. Vite proxies `/api/**` and `/media/**` to the backend on port 8081 (see [`frontend/vite.config.ts`](frontend/vite.config.ts)), so the frontend calls the API with relative paths and needs no environment variables of its own. [`frontend/.env.example`](frontend/.env.example) documents that.
 
-Useful frontend checks:
+## Where things are
+
+| URL | What |
+| --- | --- |
+| `http://localhost:5173` | React storefront (catalog, product detail, VI/EN switch) |
+| `http://localhost:8081` | Legacy static customer UI — still the only place with checkout + order tracking |
+| `http://localhost:8081/api/health` | Health check |
+| `localhost:5432` | PostgreSQL |
+
+The React app does not cover checkout or order tracking yet; those flows live in [`src/main/resources/static`](src/main/resources/static) until it does.
+
+## Environment variables
+
+Required — startup fails without them:
+
+| Variable | Notes |
+| --- | --- |
+| `DIY_SHOP_SELLER_USERNAME` | Seller login name |
+| `DIY_SHOP_SELLER_PASSWORD_HASH` | BCrypt hash, never a plain-text password |
+| `BANK_TRANSFER_BANK_NAME` | Display name of the receiving bank |
+| `BANK_TRANSFER_BANK_CODE` | Bank identifier used in the public VietQR image URL |
+| `BANK_TRANSFER_BANK_BIN` | Six-digit Vietnamese bank BIN returned in API responses |
+| `BANK_TRANSFER_ACCOUNT_NUMBER` | Receiving account number |
+| `BANK_TRANSFER_ACCOUNT_NAME` | Receiving account holder |
+
+Optional — sensible defaults for local development:
+
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `BANK_TRANSFER_TEMPLATE` | `compact` | VietQR image template |
+| `BANK_TRANSFER_PAYMENT_DUE_HOURS` | `24` | Payment window for bank transfer orders |
+| `IMAGE_STORAGE_PROVIDER` | `local` | `local` or `s3` |
+| `IMAGE_STORAGE_LOCAL_DIRECTORY` | `./uploads/product-images` | Served at `/media/product-images/**`, Git-ignored |
+| `IMAGE_STORAGE_MAX_FILE_SIZE` | `5MB` | JPEG, PNG, and WebP are accepted |
+| `IMAGE_STORAGE_S3_BUCKET` | — | Required when the provider is `s3` |
+| `AWS_REGION` | `ap-southeast-1` | S3 region |
+| `IMAGE_STORAGE_S3_URL_DURATION_MINUTES` | `60` | Lifetime of presigned display URLs |
+
+The S3 adapter uses the AWS SDK default credential chain — use an IAM role rather than putting access keys in this repository. S3 objects stay private and API responses carry temporary presigned URLs.
+
+## Common commands
+
+Backend:
 
 ```bash
-npm run test
-npm run build
-npm run lint
+./mvnw test                 # run tests
+./mvnw spring-boot:run      # run the API
+./mvnw clean package        # build the jar into target/
 ```
 
-The existing files under `src/main/resources/static` remain as the legacy customer UI until the React storefront replaces their complete customer flow.
+Frontend (from `frontend/`):
+
+```bash
+npm run dev                 # dev server on :5173
+npm run test                # vitest
+npm run lint                # eslint
+npm run build               # type-check + production build into dist/
+```
+
+Database:
+
+```bash
+docker compose up -d        # start
+docker compose ps           # status
+docker compose logs postgres
+docker compose down         # stop, keep data
+docker compose down -v      # stop and wipe the volume
+```
 
 ## API snapshot
 
-Customer-facing endpoints:
+Customer:
 
 ```text
 GET  /api/categories
@@ -152,7 +163,7 @@ GET  /api/orders/track?orderCode=...&phoneNumber=...
 GET  /api/settings
 ```
 
-Seller order endpoints:
+Seller orders:
 
 ```text
 GET   /api/seller/orders
@@ -161,17 +172,7 @@ PATCH /api/seller/orders/{orderCode}/payment
 PATCH /api/seller/orders/{orderCode}/status
 ```
 
-Seller settings and dashboard endpoints:
-
-```text
-GET /api/seller/settings
-PUT /api/seller/settings
-
-GET /api/seller/dashboard/stats
-GET /api/seller/dashboard/revenue?days=30
-```
-
-Seller catalog endpoints:
+Seller catalog:
 
 ```text
 GET   /api/seller/categories
@@ -191,106 +192,30 @@ PATCH  /api/seller/products/{id}/images/{imageId}/primary
 DELETE /api/seller/products/{id}/images/{imageId}
 ```
 
-All `/api/seller/**` endpoints require an authenticated seller session. Obtain a CSRF token from `GET /api/seller/auth/csrf`, submit credentials to `POST /api/seller/auth/login`, and end the session with `POST /api/seller/auth/logout`.
+Every `/api/seller/**` endpoint needs an authenticated session: fetch a CSRF token from `GET /api/seller/auth/csrf`, post credentials to `POST /api/seller/auth/login`, end with `POST /api/seller/auth/logout`.
 
-The image upload endpoint consumes `multipart/form-data`. Send the file in an `image` part, with optional `primaryImage` and `sortOrder` fields. JPEG, PNG, and WebP files up to 5 MB are accepted.
+Image upload consumes `multipart/form-data` — file in an `image` part, plus optional `primaryImage` and `sortOrder` fields.
 
-For `BANK_TRANSFER` orders, `OrderResponse` includes a `bankTransfer` object with bank details, transfer content, QR image URL, amount, and payment due time. For `COD` orders, `bankTransfer` is `null`.
-
-## Product image storage
-
-Local development stores uploaded images under `./uploads/product-images` and serves them from `/media/product-images/**`. The directory is ignored by Git.
-
-The default local configuration requires no additional values:
-
-```text
-IMAGE_STORAGE_PROVIDER=local
-```
-
-For AWS S3, configure:
-
-```text
-IMAGE_STORAGE_PROVIDER=s3
-IMAGE_STORAGE_S3_BUCKET=<bucket-name>
-AWS_REGION=ap-southeast-1
-```
-
-The S3 adapter uses the AWS SDK default credential chain. On AWS, give the application an IAM role with access to the bucket instead of storing access keys in this repository. S3 objects remain private; API responses contain temporary presigned display URLs.
-
-## Local database
-
-The local PostgreSQL container is defined in [`docker-compose.yaml`](docker-compose.yaml).
-The application uses these local development values:
-
-- database: `diyshop`
-- username: `diyshop`
-- password: `diyshop123`
-- host: `localhost`
-- port: `5432`
-
-These credentials are for local development only.
-
-## Flyway
-
-Migrations live in:
-
-```text
-src/main/resources/db/migration
-```
-
-Current bootstrap migration:
-
-```text
-V1__create_categories.sql
-```
-
-Flyway runs automatically during application startup.
-If a local development database reports a Flyway checksum mismatch after migration files change, reset the local Docker volume with `docker compose down -v` and start PostgreSQL again.
-
-Latest migration:
-
-```text
-V9__create_shop_settings.sql
-```
-
-## Useful commands
-
-Start database:
-
-```bash
-docker compose up -d
-```
-
-Check container status:
-
-```bash
-docker compose ps
-```
-
-View database logs:
-
-```bash
-docker compose logs postgres
-```
-
-Stop database:
-
-```bash
-docker compose down
-```
-
-Reset local database volume:
-
-```bash
-docker compose down -v
-```
-
-## Project docs
-
-- Project specification: [`docs/project-spec.md`](docs/project-spec.md)
-- Domain glossary: [`CONTEXT.md`](CONTEXT.md)
+`BANK_TRANSFER` orders return a `bankTransfer` object (bank details, transfer content, QR image URL, amount, due time). `COD` orders return `null` there.
 
 ## Troubleshooting
 
-- If port `5432` is already in use, stop the local PostgreSQL service using that port before starting Docker Compose.
-- If you need a clean local database, run `docker compose down -v` and start again.
+**Backend exits immediately with a property placeholder error.** One of the required variables from step 2 is missing. Re-run `source .seller-dev.env && source .env.local` in the terminal you start Maven from.
+
+**Flyway reports a checksum mismatch.** A migration file changed after it had already been applied locally. Reset the volume:
+
+```bash
+docker compose down -v && docker compose up -d
+```
+
+**Port 5432 already in use.** Another PostgreSQL is running — stop it, or change the host-side port mapping in [`docker-compose.yaml`](docker-compose.yaml).
+
+**Frontend loads but every request 404s or hangs.** The backend is not running on 8081; Vite only proxies, it does not serve the API.
+
+**Seller login returns 401.** Password is `seller123` and the hash in the environment must be the one written by `npm run generate:seller`. If you exported `DIY_SHOP_SELLER_PASSWORD_HASH` by hand, make sure it is a BCrypt hash and not the plain password.
+
+## Project docs
+
+- Specification: [`docs/project-spec.md`](docs/project-spec.md)
+- Notes: [`docs/notes.md`](docs/notes.md)
+- ADR — independent React frontend: [`docs/adr/0001-independent-react-frontend.md`](docs/adr/0001-independent-react-frontend.md)
